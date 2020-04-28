@@ -1,0 +1,363 @@
+#ifndef GEOMETRY_HPP_
+#define GEOMETRY_HPP_
+
+
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <list>
+#include <map>
+#include <limits>
+#include "mpi.h"
+
+#include "TriangleElement.hpp"
+#include "BoundingBox.hpp"
+#include "SearchGrid.hpp"
+
+struct cDistance{
+	double signedDistance;
+	double pDistance;
+
+	cDistance() : signedDistance(std::numeric_limits<double>::max()), pDistance(std::numeric_limits<double>::min()) {};
+	cDistance(double sd, double pd) : signedDistance(sd), pDistance(pd) {};
+
+	template <class Archive>
+	void serialize (Archive& ar, const unsigned int version) {
+		ar & signedDistance;
+		ar & pDistance;
+	}
+
+};
+
+class Geometry {
+private:
+
+	/// The dimension of the mesh 
+	int dim;
+
+	/// The number of elements
+	long int numberOfElements;
+
+	int _numberOfCellsPerTask;
+
+	std::vector< TriangleElement<double> > elements;
+
+
+
+	friend std::ostream& operator<<(std::ostream& os, const Geometry& geom);
+
+
+public:
+
+	BoundingBox<double, 3> aabb; // global aabb
+	std::vector<size_t> localElements;
+	std::vector<size_t> groupElements;
+
+	Geometry() : dim(3), numberOfElements(0) {}
+
+
+	template <typename iterator>
+	Geometry(iterator it_begin, iterator it_end, const BoundingBox<double, 3>& span) : dim(span.dims()), aabb(span) {
+		this->elements.assign(it_begin, it_end);
+		numberOfElements = elements.size();
+	}
+
+	Geometry(const Geometry& geom): dim(geom.dim), numberOfElements(geom.numberOfElements), aabb(geom.aabb) {
+		elements = geom.elements;
+	}
+
+	~Geometry() {
+//		delete sg;
+	}
+
+
+	void appendElement(const TriangleElement<double> & element);
+
+	void preSortElements(const BoundingBox<double, 3>& localRegion, double dx, int numberOfSubGroups, int groupID);
+
+	int getNumberOfCellsPerDomainLocal() const;
+
+
+	std::vector<TriangleElement<double>> findNearest(const Eigen::Vector3d& point);
+
+	void initializeSpatialSearch();
+
+
+	double getMaxX(int i);
+	double getMinX(int i);
+	long int getNumberOfElements() const {
+		return numberOfElements;
+	};
+
+	const TriangleElement<double>& getElement(int ind) const {
+		return elements[ind];
+	}
+
+
+
+	const std::vector< TriangleElement<double> >::const_iterator getElementsIterator() const;
+	const std::vector< TriangleElement<double> >::const_iterator getElementsEndIterator() const;
+
+	cDistance computeDistance(Eigen::Vector3d& point, double minDX) const;
+
+
+	// Factory method to load geometry from STL file
+	static Geometry fromFile(const char* iname);
+
+};
+
+
+
+inline void Geometry::appendElement(const TriangleElement<double> & element) {
+
+	elements.push_back(element);
+	numberOfElements++;
+
+	// expand the bounding box - will be used as root node
+	aabb.expand( element.getBoundingBox() );
+
+}
+
+void Geometry::preSortElements(const BoundingBox<double, 3>& localRegion, double dx, int numberOfSubGroups, int groupID) {
+
+	int elementGroupWidth = ceil( double(elements.size()) / double(numberOfSubGroups) );
+	
+	_numberOfCellsPerTask = 0;
+
+	for (size_t i = 0; i < elements.size(); ++i) {
+		BoundingBox<double, 3> elementBox = elements[i].getBoundingBox();
+
+		if ( localRegion.intersect( elementBox ) ) {
+			localElements.push_back(i);
+			_numberOfCellsPerTask += ((elementBox.tr() - elementBox.bl()) / dx).prod();
+		}
+
+		if ( (i/elementGroupWidth) == groupID ) {
+			groupElements.push_back(i);
+		}
+
+	}
+
+	std::cout << "node elements: " << localElements.size() << "; localcells: " << _numberOfCellsPerTask << "l groups elements: " << groupElements.size() << std::endl;
+
+}
+
+int Geometry::getNumberOfCellsPerDomainLocal() const {
+	return _numberOfCellsPerTask;
+}
+
+
+void Geometry::initializeSpatialSearch() {
+	using namespace Eigen;
+
+//	std::cout << aabb << std::endl;
+
+}
+
+
+std::vector<TriangleElement<double>> Geometry::findNearest(const Eigen::Vector3d& point) {
+
+	// change the type of the point to suit the need of the kd_tree
+
+	// number of nearest
+	int K      = 100;
+	double eps = 0.0f;
+
+	std::list<TriangleElement<double> > neighbours;
+	std::vector<TriangleElement<double>> ret;
+
+	return ret;
+
+}
+
+inline double Geometry::getMaxX(int i) {
+	return aabb.maxX(i);
+}
+
+inline double Geometry::getMinX(int i) {
+	return aabb.minX(i);
+}
+
+
+
+inline const std::vector< TriangleElement<double> >::const_iterator Geometry::getElementsIterator() const {
+	return elements.begin();
+}
+
+inline const std::vector< TriangleElement<double> >::const_iterator Geometry::getElementsEndIterator() const {
+	return elements.end();
+}
+
+
+
+cDistance Geometry::computeDistance(Eigen::Vector3d& p, double minDX) const {
+	// used to compute minimal distance to surface
+
+	double eps           =  1E-02*minDX;
+	double perpDistance  = -std::numeric_limits<double>::max();
+
+	SignedDistance<double> distance;
+	distance.dist = std::numeric_limits<double>::max();
+
+//	std::vector<std::shared_ptr<TriangleElement<double>>> nearest = findNearest(p);
+
+
+	for (auto element : elements) {
+
+		SignedDistance<double> currentDistance = TriangleElement<double>::computeDistance(element, p, minDX);
+		double             currentPerpDistance = TriangleElement<double>::computePerpendicularDistance(element, p);
+
+		if ( std::abs( currentDistance.dist - distance.dist ) < eps  ) {
+			if ( perpDistance <= currentPerpDistance ) {
+				distance     = currentDistance;
+				perpDistance = currentPerpDistance;
+			} 
+		} else if ( currentDistance.dist < distance.dist ) {
+			distance     = currentDistance;
+			perpDistance = currentPerpDistance;
+		} 
+
+	}
+
+	return cDistance(distance.dist * distance.sign, perpDistance);
+
+}
+
+
+
+
+// factory method to load data from stl file
+Geometry Geometry::fromFile(const char* iname) {
+
+
+	std::ifstream iFile;
+	char          line[120];
+	char          name[20];
+
+	iFile.open(iname);
+
+	// read first line and the name of the body from it
+	if (!iFile.is_open()) {
+		// file not existent or some other stuff
+		// throw error? :)
+	}
+
+	// read first line and the name of the body from it
+	iFile.getline(line, 120);
+
+	sscanf(line, "%*s %s", name);
+
+	long int nElements     = 0;
+	long int nNormals      = 0;
+	long int nVertices     = 0;
+	int      nFacet        = 0;
+	int      nOuter        = 0;
+	int      vertexCounter = 0;
+
+
+	std::vector<TriangleElement<double> > loadedElements;
+	TriangleElement<double>               workingElement;
+	BoundingBox<double, 3>                aabb;
+
+	typedef std::vector<TriangleElement<double> >::iterator elit;
+
+	std::vector<Eigen::Vector3d, Eigen::aligned_allocator<Eigen::Vector3d> > vertices;
+	Eigen::Vector3d                                                          vertex, normal;
+
+	Geometry geom;
+
+	// go through the rest of the lines and load the data
+	while ( iFile.getline(line, 120) ) {
+
+		char flag[120];
+
+		sscanf(line, "%s", flag);
+
+		if ( strstr(line, "facet normal") ) {
+			// load the normal, we do not use them, but lets read them
+			sscanf(line, "%*s %*s %lf %lf %lf", &normal[0], &normal[1], &normal[2]);
+
+			nFacet++;
+			nElements++;
+			nNormals++;
+		}
+		if ( strstr(flag, "outer") ) {
+			nOuter++;
+			vertexCounter = 0;
+		}
+		if ( strstr(flag, "vertex")  != 0 ) {
+
+			sscanf(line, "%*s %lf %lf %lf", &vertex[0],
+										    &vertex[1],
+										    &vertex[2]);
+
+			vertices.push_back(vertex);
+
+			nVertices++;
+			vertexCounter++;
+		}
+		if ( strstr(flag, "endloop")  != 0 ) {
+			nOuter--;
+		}
+		if ( strstr(line, "endfacet")) {
+		
+			geom.appendElement(TriangleElement<double>(vertices, (nElements - 1)));
+
+			nFacet--;
+			vertices.clear();
+		}
+
+		// read next line
+		line[0] = 'X';
+
+	}
+
+	if ( (nFacet != 0) && (nOuter != 0) && ((nVertices/3) != nElements) ) {
+		// file was loaded incorectlly, some shit happened
+		std::cout << "Error" << std::endl;
+	}
+
+	iFile.close();
+	// done loading elements
+
+//	int rank, nprocs;
+//	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+//	MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+//
+//	int elements_per_proc = loadedElements.size() / nprocs;
+//
+//	elit begin = loadedElements.begin() + ( rank * elements_per_proc);
+//	elit end   = (rank < (nprocs-1)) ? loadedElements.begin() + ( (rank+1) * elements_per_proc) : loadedElements.end();
+//	Geometry geom(begin, end, aabb);
+//	aabb.grow(1.005);
+
+	geom.aabb.grow(10);
+
+	return geom;
+
+};
+
+
+
+
+//==========================================
+// ostream operators used for debug printing
+//==========================================
+
+
+std::ostream& operator<<(std::ostream& os, const Geometry& geom) {
+	
+	os << "Geometry : " << std::endl;
+	os << "Bounding box : " << std::endl;
+	os << geom.aabb << std::endl;
+
+	os << "--------------" <<std::endl;
+
+	os << "Number of elements : " << geom.numberOfElements << std::endl;
+
+    return os;
+}
+
+
+#endif // GEOMETRY_HPP_
+

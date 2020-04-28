@@ -1,0 +1,622 @@
+#ifndef _INITIALIZER_HPP_
+#define _INITIALIZER_HPP_
+
+#include <list>
+#include <set>
+#include <vector>
+#include <algorithm>
+#include <string>
+
+#include <Eigen/Dense>
+#include <Eigen/StdVector>
+
+#include <petsctime.h>
+
+#include "Grid.hpp"
+#include "Interface.hpp"
+#include "BoundingBox.hpp"
+#include "TriangleElement.hpp"
+#include "Geometry.hpp"
+#include <boost/serialization/list.hpp>
+#include <boost/mpi.hpp>
+
+#include "tictoc.hpp"
+
+
+#define NARROWBAND 1
+#define MAKECELLLIST 2
+#define SETUPGROUPS 3
+#define COMPUTEDIST 4
+#define ALLGATHER 5
+#define REDUCE 6
+#define PUTTOBOUNDARIES 7
+
+
+struct elementBoxDistanceData {
+	BoundingBox<int, 3> box;
+	int                 numberOfCells;
+	double              *sd, *pd;
+
+	elementBoxDistanceData() : numberOfCells(-1), sd(NULL), pd(NULL) {};
+
+	elementBoxDistanceData(const BoundingBox<int, 3>& bb) : box(bb), numberOfCells(0), sd(NULL), pd(NULL) {};
+
+	elementBoxDistanceData(const BoundingBox<int, 3>& bb, int nc) : box(bb), numberOfCells(nc), sd(new double[nc]), pd(new double[nc]) {};
+
+	elementBoxDistanceData(const elementBoxDistanceData& elBox) : box(elBox.box),
+																  numberOfCells(elBox.numberOfCells),
+																  sd(new double[elBox.numberOfCells]),
+																  pd(new double[elBox.numberOfCells]) {
+		for (int i = 0; i < elBox.numberOfCells; ++i) {
+			sd[i] = elBox.sd[i];
+			pd[i] = elBox.pd[i];
+		}
+	}
+
+	~elementBoxDistanceData() {
+		if (sd != NULL)
+			delete [] sd;
+		if (pd != NULL)
+			delete [] pd;
+	}
+
+	elementBoxDistanceData& operator=(const elementBoxDistanceData& other) {
+		if (this != &other) {
+			box           = other.box;
+			numberOfCells = other.numberOfCells;
+
+			if (sd != NULL)
+				delete [] sd;
+			if (pd != NULL)
+				delete [] pd;
+
+			sd = new double[numberOfCells];
+			pd = new double[numberOfCells];
+
+			for (int i = 0; i < numberOfCells; ++i) {
+				sd[i] = other.sd[i];
+				pd[i] = other.pd[i];
+			}
+		}
+		return *this;
+	}
+
+	template <class Archive>
+	void save(Archive & ar, const unsigned int version) const {
+		ar & box;
+		ar & numberOfCells;
+		if (pd != NULL && sd != NULL) {
+			for (int i = 0; i < numberOfCells; ++i) {
+				ar & sd[i];
+				ar & pd[i];
+			}
+		}
+	}
+
+	template<class Archive>
+	void load(Archive & ar, const unsigned int version) {
+		ar & box;
+		ar & numberOfCells;
+
+		if (pd != NULL)
+			delete [] pd;
+		if (sd != NULL)
+			delete [] sd;
+
+		pd = new double[numberOfCells];
+		sd = new double[numberOfCells];
+
+		for (int i = 0; i < numberOfCells; ++i) {
+			ar & sd[i];
+			ar & pd[i];
+		}
+	}
+
+	BOOST_SERIALIZATION_SPLIT_MEMBER()
+
+};
+
+
+
+template <typename T>
+struct sdfMinimum {
+
+	sdfMinimum() {};
+
+	T operator() (const T& x, const T& y) const {
+		double ax  = std::abs(x.signedDistance), ay = std::abs(y.signedDistance);
+		double eps = 1e-12;
+		if ( fabs(ax - ay) < eps ) {
+			if (x.pDistance < y.pDistance) {
+				return y;
+			} else {
+				return x;
+			}
+		} else if (ax < ay) {
+			return x;
+		} else {
+			return y;
+		}
+
+	}
+};
+
+namespace boost { namespace  mpi {
+	template <>
+	struct is_commutative<sdfMinimum<cDistance>, cDistance> : mpl::true_ {};
+} }
+
+
+
+class Initializer {
+public:
+	Initializer() {};
+
+
+	// This is where the magic happens and the initializator puts the data in
+	template <typename type, int dim>
+	void operator() (const Grid<type, dim>& gr, const Geometry& geom, Interface<type, dim>& interface, int groupID, int nGroups);
+
+
+private:
+	// some states here and utility functions needed to do the jolb
+
+	template <typename type, int dim>
+	void sendAndProcessBuffer(const Grid<type, dim>& gr, const Geometry& geom, Interface<type, dim>& interface,
+			                  std::vector< std::vector<elementBoxDistanceData> >& boxDistances,
+                              std::vector<int>& localTriangles,
+			                  double*** perpendicualDistance);
+
+	template <typename type, int dim>
+	void initializeData(const Grid<type, dim>& gr, Interface<type, dim>& data, double**** pData);
+
+	template <typename type, int dim>
+	void releaseData(const Grid<type, dim>& gr, double**** pData);
+
+	int selectBoundaries(const BoundingBox<double, 3>& geometryAABB, const BoundingBox<double, 3>& procAABB);
+
+	template <typename type, int dim>
+	void putDataToBoundaries(const Grid<type, dim>& gr, Interface<type, dim>& data, cDistance* distanceData, int cellNum, int boundaries);
+
+	template <typename type, int dim>
+	void putDataInside(const Grid<type, dim>& gr, Interface<type, dim>& data, const std::vector<elementBoxDistanceData>& recvData, double*** perpendicualDistance);
+
+	template <typename type, int dim>
+	void putLocalDataInside(const Grid<type, dim>& gr, Interface<type, dim>& data, const std::vector<size_t>& localTriangles, const Geometry& geom, double*** perpendicualDistance);
+
+
+
+};
+
+///
+/// Main routine
+///
+
+template <typename type, int dim>
+void Initializer::operator ()(const Grid<type, dim>& gr, const Geometry& geom, Interface<type, dim>& interface, int groupID, int nGroups) {
+
+	namespace mpi = boost::mpi;
+
+	std::vector<Eigen::Vector3d, Eigen::aligned_allocator<Eigen::Vector3d> > boundaryCells;    // xyz coordinated to compute the distance to
+	cDistance*                 distances;        // compted distance
+	int                        myBegin, myEnd;   // local indices start, local indices stop
+	int                        myBoundaries;     // local boundaries to init
+
+	mpi::communicator          world;
+	mpi::group                 worldGroup = world.group();
+	// perpendicular distance computed towards the triangle, it is used when we are no longer sure, which normal shall we use
+
+	// define according data type for cDistance in MPI
+	const int    nitems = 2;
+	int          blocklengths[2] = {1, 1};
+	MPI_Datatype types[2] = {MPI_DOUBLE, MPI_DOUBLE};
+	MPI_Datatype mpi_cDist_type;
+	MPI_Aint     offsets[2];
+
+	offsets[0] = offsetof(cDistance, signedDistance);
+	offsets[1] = offsetof(cDistance, pDistance);
+
+	MPI_Type_create_struct(nitems, blocklengths, offsets, types, &mpi_cDist_type);
+	MPI_Type_commit(&mpi_cDist_type);
+	// end type definition
+
+	double*** perpendicualDistance;
+
+	tictoc tick;
+
+
+	// initialize the data
+
+	Vec       localData = interface.getLocalData();
+	double*** data_ptr;
+	int       x, y, z, m, n, p;
+
+	int myWorldRank   = world.rank();
+	int nProcsInWorld = world.size();
+
+	double minDX = Eigen::Array3d(gr.getDx(0), gr.getDx(1), gr.getDx(2)).minCoeff();
+
+	DMDAVecGetArray(gr.getDA(), localData, &data_ptr);
+	DMDAGetGhostCorners(gr.getDA(), &x, &y, &z, &m, &n, &p);
+
+	perpendicualDistance = new double**[p];
+	for (int k = z, pk = 0; k < z+p; ++k, ++pk) {
+		perpendicualDistance[pk] = new double*[n];
+		for (int j = y, pj = 0; j < y+n; ++j, ++pj) {
+			perpendicualDistance[pk][pj] = new double[m];
+			for (int i = x, pi = 0; i < x+m; ++i, ++pi) {
+				data_ptr[k][j][i]                =  std::numeric_limits<double>::max();
+				perpendicualDistance[pk][pj][pi] = -std::numeric_limits<double>::max();
+			}
+		}
+	}
+
+	DMDAVecRestoreArray(gr.getDA(), localData, &data_ptr);
+
+	// step FIVE compute triangle distance inside the narrowband
+
+	tick.tic();
+	putLocalDataInside(gr, interface, geom.localElements, geom, perpendicualDistance);
+	tick.toc(myWorldRank, NARROWBAND, "Narrowband init");
+
+	DMDAGetGhostCorners(gr.getDA(), &x, &y, &z, &m, &n, &p);
+
+	for (int k = 0; k < p; ++k) {
+		for (int j = 0; j < n; ++j) {
+			delete [] perpendicualDistance[k][j];
+		}
+		delete [] perpendicualDistance[k];
+	}
+	delete [] perpendicualDistance;
+
+	// =====================================================================================================
+
+	tick.tic();
+	// prepare memory to store the list of all boundary cells
+	std::vector<Eigen::Vector3d, Eigen::aligned_allocator<Eigen::Vector3d> > boundaryCellList;
+	boundaryCellList.reserve( world.size() * 4 * gr.getM(0)*gr.getM(1) );
+
+	// this is where the results go (final results)
+	std::vector<cDistance> vDistance;
+
+	// create the fucking list
+	for (int p = 0; p < nProcsInWorld; ++p) {
+		// loop thourgh the processes and get the proc bounding box
+		BoundingBox<double, 3> procBB    = gr.getNodeSpan(p);
+		int boundariesToInit             = selectBoundaries(geom.aabb, procBB);
+
+		std::vector<Eigen::Vector3d, Eigen::aligned_allocator<Eigen::Vector3d> > l   = gr.getNodeBoundaryCells(p, boundariesToInit);
+ 
+		// ok I need to remember what part of the boundary is mine, otherwise I am screwed
+		if (myWorldRank == p) {
+			myBegin      = boundaryCellList.size();
+			myEnd        = myBegin + l.size();
+			myBoundaries = boundariesToInit;
+		}
+
+		boundaryCellList.insert( boundaryCellList.end(), l.begin(), l.end() );
+	}
+	tick.toc(myWorldRank, MAKECELLLIST, "Create boundary list");
+	
+	// number of cells in the boundary list for the WHOLE FUCKING BOUNDARY
+	int nBCells = boundaryCellList.size();
+
+	tick.tic();
+	// loadbalance the problem.
+	// first create groups for the problem
+	mpi::communicator groupCommunicator; // from start this is world.
+	if ( nGroups > 1 ) {
+		// but if the number of groups is larger than one we need to create the right communicator.
+		// luckily the group assigment is already sorted in setup phase.
+		groupCommunicator = world.split(groupID);
+	}
+
+
+	// now each group will split its workload of boundary cells and start doing stuff
+	int nProcsInGroup            = groupCommunicator.size();
+	int numberOfCellsPerTask     = geom.getNumberOfCellsPerDomainLocal();
+	int max_numberOfCellsPerTask = -std::numeric_limits<int>::max();
+	int totalCellsToFillTheGaps  = 0;
+	std::vector<int> exchangedNumberOfCellsPerTask;
+
+	mpi::all_gather(groupCommunicator, numberOfCellsPerTask, exchangedNumberOfCellsPerTask);
+
+	for (auto item : exchangedNumberOfCellsPerTask) {
+		max_numberOfCellsPerTask  = ( item > max_numberOfCellsPerTask ) ? item : max_numberOfCellsPerTask;
+	}
+
+	std::vector<double> diffs; diffs.resize( nProcsInGroup ); // diffs is the number of cells going to be added as balance for 
+	int groupRank = groupCommunicator.rank();
+
+	for (int p = 0 ; p < nProcsInGroup; ++p) {
+		diffs[p] = max_numberOfCellsPerTask - exchangedNumberOfCellsPerTask[p];
+			std::cout << max_numberOfCellsPerTask << " - " << exchangedNumberOfCellsPerTask[p] << " / " << diffs[p] << std::endl;
+		totalCellsToFillTheGaps += (max_numberOfCellsPerTask - exchangedNumberOfCellsPerTask[p]);
+	}
+	
+	double tmpSum = 0;
+	for (int p = 0 ; p < nProcsInGroup; ++p) {
+		diffs[p] = diffs[p] / ( double(totalCellsToFillTheGaps) + std::numeric_limits<double>::min() );
+		tmpSum += diffs[p];
+	}
+
+	
+	int theRest = nBCells - totalCellsToFillTheGaps;
+	std::cout << "sum : " << tmpSum << std::endl;
+	if ( theRest < 0 ) {
+		// to make sure that assigment of negative shit is not happening
+		theRest                 = 0;
+		totalCellsToFillTheGaps = nBCells;
+	}
+	std::cout << "the rest : " << theRest << std::endl;
+	
+	int start = 0, finish = 0;
+	int send_offsets[nProcsInGroup];
+	int send_lens[nProcsInGroup];
+	int debugSum = 0;
+
+
+	for (int p = 0; p < nProcsInGroup; ++p) {
+		start  = finish;
+
+		finish = (p == nProcsInGroup-1) ? nBCells : start + int( diffs[p]*double(totalCellsToFillTheGaps) ) + int( double(theRest)/double(nProcsInGroup) );
+		 
+		send_offsets[p] = start;
+		send_lens[p]    = finish - start;
+		std::cout << send_offsets[p] << "   -  " << send_offsets[p] + send_lens[p] << std::endl;
+		debugSum += send_lens[p];
+	}
+	tick.toc(myWorldRank, SETUPGROUPS, "Setup groups");
+	
+
+	
+	tick.tic();
+	std::cout << "sendlen : " << send_lens[groupRank] << std::endl;
+	std::vector<cDistance> localDistances; localDistances.reserve( send_lens[groupRank] );
+	// compute the distance within the group
+	std::cout <<  send_offsets[groupRank] << " - " << send_offsets[groupRank] + send_lens[groupRank] << " / " << nBCells << std::endl;
+	for (int i = send_offsets[groupRank]; i < send_offsets[groupRank] + send_lens[groupRank]; ++i) {
+		localDistances.push_back( geom.computeDistance( boundaryCellList[i], minDX ) );
+	}
+	tick.toc(myWorldRank, COMPUTEDIST, "Compute bval dist");
+	boundaryCellList.clear();
+	
+
+	// put data together. That means call allgatherv and synchronize the shit.
+
+	tick.tic();
+	vDistance.resize( nBCells );
+	MPI_Allgatherv(&localDistances[0], localDistances.size(), mpi_cDist_type,  &vDistance[0], send_lens, send_offsets, mpi_cDist_type, (MPI_Comm)groupCommunicator);
+
+	localDistances.clear();
+	tick.toc(myWorldRank, ALLGATHER, "Allgatherv vector");
+	// now the data is placed together in one nice vector
+
+	// synchronize the groups by reduce operation. This is only needed when you have more then one group
+
+	tick.tic();
+	if ( nGroups > 1 ) {
+		mpi::all_reduce(world, &vDistance[0], nBCells, &vDistance[0], sdfMinimum<cDistance>());
+	}
+	tick.toc(myWorldRank, REDUCE, "Reduce between groups");
+
+	tick.tic();
+	// step THREE put into the grid
+	putDataToBoundaries(gr, interface, &vDistance[myBegin], (myEnd-myBegin), myBoundaries);
+
+	vDistance.clear();
+	tick.toc(myWorldRank, PUTTOBOUNDARIES, "Place to boundaries");
+
+
+
+
+//=======================================================================================
+	// DMDAVecGetArray(gr.getDA(), localData, &data_ptr);
+	// for (int k = z, pk = 0; k < z+p; ++k, ++pk) {
+	// 	for (int j = y, pj = 0; j < y+n; ++j, ++pj) {
+	// 		for (int i = x, pi = 0; i < x+m; ++i, ++pi) {
+	// 			if ( data_ptr[k][j][i] == std::numeric_limits<double>::max() )
+	// 				data_ptr[k][j][i] = -10;
+	// 		}
+	// 	}
+	// }
+	// DMDAVecRestoreArray(gr.getDA(), localData, &data_ptr);
+//=======================================================================================
+
+}
+
+
+int Initializer::selectBoundaries(const BoundingBox<double, 3>& geometryAABB, const BoundingBox<double, 3>& procAABB) {
+	// chooses which boundaries of the domain have to be initialized
+	// ordering : [left, right, bottom, top, front, back]
+
+	int selectedBoundaries_int = 0;
+
+	for (int i = 0; i < 3; ++i) {
+		//gr->getLocalGhostedMax(i) <= dataProvider->getMaxX(i)
+		if ( procAABB.maxX(i) <= geometryAABB.maxX(i) ) {
+			selectedBoundaries_int |= ( 1 << (i*2 + 1) );
+		}
+		// gr->getLocalGhostedMin(i) >= dataProvider->getMinX(i)
+		if ( procAABB.minX(i) >= geometryAABB.minX(i) ) {
+			selectedBoundaries_int |= ( 1 << (i*2) );
+		}
+	}
+
+	return selectedBoundaries_int;
+
+}
+
+
+template <typename type, int dim>
+void Initializer::putDataToBoundaries(const Grid<type, dim>& gr, Interface<type, dim>& data, cDistance* distanceData, int cellNum, int boundaries) {
+
+	Vec       localData = data.getLocalData();
+	double*** data_ptr;
+	int       x, y, z, m, n, p;
+	int       cellCounter = 0, gh = 1;
+
+	DMDAVecGetArray(gr.getDA(), localData, &data_ptr);
+	DMDAGetGhostCorners(gr.getDA(), &x, &y, &z, &m, &n, &p);
+//	DMDAGetCorners(gr.getDA(), &x, &y, &z, &m, &n, &p);
+
+	if ( boundaries & 1 ) {
+		// this means lets initialize left side
+		for (int i = x; i < x+gh; ++i) {
+			for (int j = y; j < y+n; ++j) {
+				for (int k = z; k < z+p; ++k) {
+					data_ptr[k][j][i] = distanceData[cellCounter].signedDistance;
+					cellCounter++;
+
+				}
+			}
+		}
+	}
+	if ( boundaries & 2 ) {
+		// this means lets initialize right side
+		for (int i = x+m-1; i > x+m-1-gh; --i) {
+			for (int j = y; j < y+n; ++j) {
+				for (int k = z; k < z+p; ++k) {
+
+					data_ptr[k][j][i] = distanceData[cellCounter].signedDistance;
+					cellCounter++;
+
+				}
+			}
+		}
+	}
+	if ( boundaries & 4 ) {
+		// this means initialize the bottom side
+		for (int j = y; j < y+gh; ++j) {
+			for (int i = x; i < x+m; ++i) {
+				for (int k = z; k < z+p; ++k) {
+
+					data_ptr[k][j][i] = distanceData[cellCounter].signedDistance;
+					cellCounter++;
+
+				}
+			}
+		}
+	}
+	if ( boundaries & 8 ) {
+		// this means initialize the top side
+		for (int j = y+n-1; j > y+n-1-gh; --j) {
+			for (int i = x; i < x+m; ++i) {
+				for (int k = z; k < z+p; ++k) {
+
+					data_ptr[k][j][i] = distanceData[cellCounter].signedDistance;
+					cellCounter++;
+
+				}
+			}
+		}
+	}
+	if ( boundaries & 16 ) {
+		// this means initialize the front side
+		for (int k = z; k < z+gh; ++k) {
+			for (int i = x; i < x+m; ++i) {
+				for (int j = y; j < y+n; ++j) {
+
+					data_ptr[k][j][i] = distanceData[cellCounter].signedDistance;
+					cellCounter++;
+
+				}
+			}
+		}
+	}
+	if ( boundaries & 32 ) {
+		// this means initialize the far side
+		for (int k = z+p-1; k > z+p-1-gh; --k) {
+			for (int i = x; i < x+m; ++i) {
+				for (int j = y; j < y+n; ++j) {
+
+					data_ptr[k][j][i] = distanceData[cellCounter].signedDistance;
+					cellCounter++;
+
+				}
+			}
+		}
+	}
+
+
+	DMDAVecRestoreArray(gr.getDA(), localData, &data_ptr);
+
+}
+
+template <typename type, int dim>
+void Initializer::putLocalDataInside(const Grid<type, dim>& gr, Interface<type, dim>& data, const std::vector<size_t>& localTriangles, const Geometry& geom, double*** perpendicualDistance) {
+	Vec       localData = data.getLocalData();
+	double*** data_ptr;
+	int       x, y, z, m, n, p;
+	double    narrowBand = ((gr.getDx(0) + gr.getDx(1) + gr.getDx(2)) / 3) * 10;
+	double    eps = Eigen::Array3d(gr.getDx(0), gr.getDx(1), gr.getDx(2)).minCoeff() * 1E-12;
+
+	DMDAVecGetArray(gr.getDA(), localData, &data_ptr);
+	DMDAGetGhostCorners(gr.getDA(), &x, &y, &z, &m, &n, &p);
+
+
+	double minDX = Eigen::Array3d(gr.getDx(0), gr.getDx(1), gr.getDx(2)).minCoeff();
+
+
+	for (auto index: localTriangles) {
+		int       cellCounter = 0;
+		TriangleElement<double> currentElement = geom.getElement(index);
+
+		BoundingBox<int, 3> ind = gr.getGlobalBoxIndices( currentElement.getBoundingBox() );
+
+		auto bl = ind.bl();
+		auto tr = ind.tr();
+
+		for ( int k = bl[2]; k <= tr[2]; ++k ) {
+			for ( int j = bl[1]; j <= tr[1]; ++j ) {
+				for ( int i = bl[0]; i <= tr[0]; ++i ) {
+
+					if ( i < x || j < y || k < z || i >= (x+m) || j >= (y+n) || k >= (z+p) ) {
+						cellCounter++;
+						continue;
+					}
+
+					Eigen::Vector3d        p = gr.getCoord( Eigen::Vector3i(i,j,k) );
+
+					SignedDistance<double> v       = TriangleElement<double>::computeDistance(currentElement, p, minDX);
+					double                 pd      = TriangleElement<double>::computePerpendicularDistance(currentElement, p);
+
+					cellCounter++;
+
+					if ( v.dist > narrowBand ) {
+						cellCounter++;
+						continue;
+					}
+
+					if ( v.dist < eps ) {
+
+						data_ptr[k][j][i]                   = eps;
+						perpendicualDistance[k-z][j-y][i-x] = eps;
+
+					}  else if ( fabs( v.dist - fabs(data_ptr[k][j][i]) ) < eps ) {
+
+						// equal not funny
+						if ( perpendicualDistance[k-z][j-y][i-x] <= pd ) {
+							data_ptr[k][j][i]                   = v.sign * v.dist;
+							perpendicualDistance[k-z][j-y][i-x] = pd;
+						}
+
+					} else if ( v.dist < fabs(data_ptr[k][j][i]) ) {
+
+						// less so ok than
+						data_ptr[k][j][i]                   = v.sign * v.dist;
+						perpendicualDistance[k-z][j-y][i-x] = pd;
+					}
+
+				}
+			}
+		}
+
+	}
+
+	DMDAVecRestoreArray(gr.getDA(), localData, &data_ptr);
+}
+
+
+#endif
+

@@ -1,0 +1,10 @@
+# use glob syntax.
+syntax: glob
+
+*.o
+*.out
+*~
+.tags*
+
+bin/libls
+_makefile

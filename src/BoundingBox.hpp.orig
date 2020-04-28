@@ -1,0 +1,679 @@
+AABB_triangle_traits	Geometry.hpp.modified	26
+ALLGATHER	Initializer.hpp	33
+AXISTEST_X01	tribox3.hpp	/^#define AXISTEST_X01(a, b, fa, fb)			   \\$/
+AXISTEST_X2	tribox3.hpp	/^#define AXISTEST_X2(a, b, fa, fb)			   \\$/
+AXISTEST_Y02	tribox3.hpp	/^#define AXISTEST_Y02(a, b, fa, fb)			   \\$/
+AXISTEST_Y1	tribox3.hpp	/^#define AXISTEST_Y1(a, b, fa, fb)			   \\$/
+AXISTEST_Z0	tribox3.hpp	/^#define AXISTEST_Z0(a, b, fa, fb)			   \\$/
+AXISTEST_Z12	tribox3.hpp	/^#define AXISTEST_Z12(a, b, fa, fb)			   \\$/
+B	triagGridTest.o	942
+B	triagGridTest.o	959
+C	loadUGtxt.m	4
+COMPUTEDIST	Initializer.hpp	32
+CROSS	tribox3.hpp	/^#define CROSS(dest,v1,v2) \\$/
+DOT	tribox3.hpp	/^#define DOT(v1,v2) (v1[0]*v2[0]+v1[1]*v2[1]+v1[2]*/
+DataProvider	Initializer_bruteforce.hpp	17
+DataProvider	Initializer_bruteforce.hpp	42
+DataProvider	Initializer.hpp.backup	17
+DataProvider	Initializer.hpp.backup	67
+DataProvider	Initializer.hpp.backup	240
+DataProvider	Initializer.hpp.backup	274
+DataProvider	Initializer.hpp.backup	339
+DataProvider	Initializer.hpp.backup	358
+DataProvider	Initializer.hpp.backup	401
+DataProvider	Initializer.hpp.backup	431
+DataProvider	Initializer_new.hpp	18
+DataProvider	Initializer_new.hpp	65
+DataProvider	Initializer_new.hpp	324
+DataProvider	Initializer_new.hpp	395
+DataProvider	Initializer_new.hpp	424
+DataProvider	Initializer_new.hpp	453
+DataProvider	Initializer_new.hpp	467
+DataProvider	Initializer_new.hpp.orig	18
+DataProvider	Initializer_new.hpp.orig	65
+DataProvider	Initializer_new.hpp.orig	324
+DataProvider	Initializer_new.hpp.orig	395
+DataProvider	Initializer_new.hpp.orig	424
+DataProvider	Initializer_new.hpp.orig	453
+DataProvider	Initializer_new.hpp.orig	467
+FINDMINMAX	tribox3.hpp	/^#define FINDMINMAX(x0,x1,x2,min,max) \\$/
+FMMWRAPPER_HPP_	FmmWrapper.hpp	9
+FT	Geometry.hpp.modified	22
+FmmWrapper	FmmWrapper.hpp	17
+FmmWrapper::solveEikonalEquation	FmmWrapper.hpp	/^template <int dim> bool FmmWrapper::solveEikonalEq/
+G	triagGridTest.o	933
+G	triagGridTest.o	1361
+G	triagGridTest.o	2447
+GEOMETRY_HPP_	Geometry.hpp	3
+GEOMETRY_HPP_	Geometry.hpp.modified	2
+GEOMETRY_HPP_	Geometry.hpp.orig	2
+GRID_H_	Grid.hpp	9
+Geometry	Geometry.hpp	34
+Geometry	Geometry.hpp.modified	31
+Geometry	Geometry.hpp.orig	32
+Geometry::BoundingBox	Geometry.hpp	54
+Geometry::BoundingBox	Geometry.hpp.modified	48
+Geometry::BoundingBox	Geometry.hpp.orig	52
+Geometry::Geometry	Geometry.hpp	/^	Geometry() : dim(3), numberOfElements(0) {}$/
+Geometry::Geometry	Geometry.hpp	/^	Geometry(iterator it_begin, iterator it_end, cons/
+Geometry::Geometry	Geometry.hpp	/^	Geometry(const Geometry& geom): dim(geom.dim), nu/
+Geometry::Geometry	Geometry.hpp.modified	/^	Geometry() {$/
+Geometry::Geometry	Geometry.hpp.modified	/^	Geometry(const Geometry& geom): dim(geom.dim), nu/
+Geometry::Geometry	Geometry.hpp.orig	/^	Geometry() : dim(3), numberOfElements(0) {}$/
+Geometry::Geometry	Geometry.hpp.orig	/^	Geometry(iterator it_begin, iterator it_end, cons/
+Geometry::Geometry	Geometry.hpp.orig	/^	Geometry(const Geometry& geom): dim(geom.dim), nu/
+Geometry::_numberOfCellsPerTask	Geometry.hpp	43
+Geometry::_numberOfCellsPerTask	Geometry.hpp.orig	41
+Geometry::aabb	Geometry.hpp	54
+Geometry::aabb	Geometry.hpp.modified	48
+Geometry::aabb	Geometry.hpp.orig	52
+Geometry::appendElement	Geometry.hpp	/^inline void Geometry::appendElement(const Triangle/
+Geometry::appendElement	Geometry.hpp.modified	/^void Geometry::appendElement(const Triangle& eleme/
+Geometry::appendElement	Geometry.hpp.orig	/^inline void Geometry::appendElement(const Triangle/
+Geometry::computeDistance	Geometry.hpp	/^cDistance Geometry::computeDistance(Eigen::Vector3/
+Geometry::computeDistance	Geometry.hpp.modified	/^double Geometry::computeDistance(Eigen::Vector3d& /
+Geometry::computeDistance	Geometry.hpp.orig	/^cDistance Geometry::computeDistance(Eigen::Vector3/
+Geometry::dim	Geometry.hpp	38
+Geometry::dim	Geometry.hpp.modified	35
+Geometry::dim	Geometry.hpp.orig	36
+Geometry::elements	Geometry.hpp	45
+Geometry::elements	Geometry.hpp.modified	40
+Geometry::elements	Geometry.hpp.orig	43
+Geometry::findNearest	Geometry.hpp	/^std::vector<TriangleElement<double>> Geometry::fin/
+Geometry::findNearest	Geometry.hpp.modified	/^void Geometry::findNearest(const Eigen::Vector3d& /
+Geometry::findNearest	Geometry.hpp.orig	/^std::vector<TriangleElement<double>> Geometry::fin/
+Geometry::fromFile	Geometry.hpp	/^Geometry Geometry::fromFile(const char* iname, dou/
+Geometry::fromFile	Geometry.hpp.modified	/^Geometry Geometry::fromFile(const char* iname) {$/
+Geometry::fromFile	Geometry.hpp.orig	/^Geometry Geometry::fromFile(const char* iname) {$/
+Geometry::getElement	Geometry.hpp	/^	const TriangleElement<double>& getElement(int ind/
+Geometry::getElement	Geometry.hpp.orig	/^	const TriangleElement<double>& getElement(int ind/
+Geometry::getElementsEndIterator	Geometry.hpp	/^inline const std::vector< TriangleElement<double> /
+Geometry::getElementsEndIterator	Geometry.hpp.orig	/^inline const std::vector< TriangleElement<double> /
+Geometry::getElementsIterator	Geometry.hpp	/^inline const std::vector< TriangleElement<double> /
+Geometry::getElementsIterator	Geometry.hpp.orig	/^inline const std::vector< TriangleElement<double> /
+Geometry::getMaxX	Geometry.hpp	/^inline double Geometry::getMaxX(int i) {$/
+Geometry::getMaxX	Geometry.hpp.modified	/^inline double Geometry::getMaxX(int i) {$/
+Geometry::getMaxX	Geometry.hpp.orig	/^inline double Geometry::getMaxX(int i) {$/
+Geometry::getMinX	Geometry.hpp	/^inline double Geometry::getMinX(int i) {$/
+Geometry::getMinX	Geometry.hpp.modified	/^inline double Geometry::getMinX(int i) {$/
+Geometry::getMinX	Geometry.hpp.orig	/^inline double Geometry::getMinX(int i) {$/
+Geometry::getNumberOfCellsPerDomainLocal	Geometry.hpp	/^int Geometry::getNumberOfCellsPerDomainLocal() con/
+Geometry::getNumberOfCellsPerDomainLocal	Geometry.hpp.orig	/^int Geometry::getNumberOfCellsPerDomainLocal() con/
+Geometry::getNumberOfElements	Geometry.hpp	/^	long int getNumberOfElements() const {$/
+Geometry::getNumberOfElements	Geometry.hpp.orig	/^	long int getNumberOfElements() const {$/
+Geometry::groupElements	Geometry.hpp	56
+Geometry::groupElements	Geometry.hpp.orig	54
+Geometry::initializeSpatialSearch	Geometry.hpp	/^void Geometry::initializeSpatialSearch() {$/
+Geometry::initializeSpatialSearch	Geometry.hpp.modified	/^void Geometry::initializeSpatialSearch() {$/
+Geometry::initializeSpatialSearch	Geometry.hpp.orig	/^void Geometry::initializeSpatialSearch() {$/
+Geometry::localElements	Geometry.hpp	55
+Geometry::localElements	Geometry.hpp.orig	53
+Geometry::numberOfElements	Geometry.hpp	41
+Geometry::numberOfElements	Geometry.hpp.modified	38
+Geometry::numberOfElements	Geometry.hpp.orig	39
+Geometry::preSortElements	Geometry.hpp	/^void Geometry::preSortElements(const BoundingBox<d/
+Geometry::preSortElements	Geometry.hpp.orig	/^void Geometry::preSortElements(const BoundingBox<d/
+Geometry::tree	Geometry.hpp.modified	44
+Geometry::~Geometry	Geometry.hpp	/^	~Geometry() {$/
+Geometry::~Geometry	Geometry.hpp.modified	/^	~Geometry() {$/
+Geometry::~Geometry	Geometry.hpp.orig	/^	~Geometry() {$/
+GeometryManager	StlFileProvider.hpp	28
+Grid	Grid.hpp	77
+Grid	Grid.hpp	/^Grid<type, dim>::Grid(const Eigen::Array<type, dim/
+Grid	Grid.hpp	/^Grid<type, dim>::Grid(const Eigen::Array<type, dim/
+Grid	Grid.hpp	/^Grid<type, dim>::Grid(PetscReal* minX, PetscReal* /
+Grid::BoundingBox	Grid.hpp	221
+Grid::BoundingBox	Grid.hpp	249
+Grid::BoundingBox	Grid.hpp	251
+Grid::BoundingBox	Grid.hpp	253
+Grid::BoundingBox	Grid.hpp	259
+Grid::BoundingBox	Grid.hpp	261
+Grid::BoundingBox	Grid.hpp	263
+Grid::T	Grid.hpp	151
+Grid::boundaryType	Grid.hpp	135
+Grid::da	Grid.hpp	129
+Grid::dof	Grid.hpp	117
+Grid::dx	Grid.hpp	84
+Grid::getDA	Grid.hpp	/^	const DM getDA() const {return this->da;};$/
+Grid::globalGridLayout	Grid.hpp	81
+Grid::gr_layout	Grid.hpp	157
+Grid::localGhostedMaxX	Grid.hpp	111
+Grid::localGhostedMinX	Grid.hpp	108
+Grid::localInfo	Grid.hpp	132
+Grid::localMaxX	Grid.hpp	105
+Grid::localMinX	Grid.hpp	102
+Grid::maxX	Grid.hpp	93
+Grid::minX	Grid.hpp	90
+Grid::nProcs	Grid.hpp	158
+Grid::nodeSpan	Grid.hpp	114
+Grid::numberOfGhostedGridCells	Grid.hpp	99
+Grid::numberOfGridCells	Grid.hpp	96
+Grid::pm	Grid.hpp	120
+Grid::pn	Grid.hpp	120
+Grid::pp	Grid.hpp	120
+Grid::processID	Grid.hpp	158
+Grid::std::vector	Grid.hpp	265
+Grid::stencilSize	Grid.hpp	87
+GridData	Grid.hpp	20
+GridData::BoundingBox	Grid.hpp	36
+GridData::getBB	Grid.hpp	/^	BoundingBox<double, 3> getBB() {$/
+GridData::ghosts	Grid.hpp	28
+GridData::glm	Grid.hpp	31
+GridData::glmaxx	Grid.hpp	34
+GridData::glminx	Grid.hpp	34
+GridData::gln	Grid.hpp	31
+GridData::glp	Grid.hpp	31
+GridData::lm	Grid.hpp	30
+GridData::lmaxx	Grid.hpp	33
+GridData::lminx	Grid.hpp	33
+GridData::ln	Grid.hpp	30
+GridData::lp	Grid.hpp	30
+GridData::m	Grid.hpp	26
+GridData::maxx	Grid.hpp	24
+GridData::minx	Grid.hpp	24
+GridData::n	Grid.hpp	26
+GridData::p	Grid.hpp	26
+GridData::pm	Grid.hpp	25
+GridData::pn	Grid.hpp	25
+GridData::pp	Grid.hpp	25
+GridData::serialize	Grid.hpp	/^	void serialize (Archive& ar, const unsigned int v/
+H	triagGridTest.o	1537
+H	triagGridTest.o	2541
+H	triagGridTest.o	2545
+H‰HH‹JH‰	triagGridTest.o	167
+H‹Ð	triagGridTest.o	206
+INITIALIZER_HPP_	Initializer.hpp.backup	9
+INITIALIZER_NEW_HPP_	Initializer_bruteforce.hpp	9
+INITIALIZER_NEW_HPP_	Initializer_new.hpp	9
+INITIALIZER_NEW_HPP_	Initializer_new.hpp.orig	9
+INTERFACE_H_	Data.hpp	9
+INTERFACE_H_	Interface.hpp	9
+INTERFACE_H_	Interface.hpp~	9
+Initializer	Initializer_bruteforce.hpp	18
+Initializer	Initializer.hpp	154
+Initializer	Initializer.hpp.backup	18
+Initializer	Initializer_new.hpp	19
+Initializer	Initializer_new.hpp.orig	19
+Initializer::BoundingBox	Initializer.hpp.backup	54
+Initializer::BoundingBox	Initializer_new.hpp	27
+Initializer::BoundingBox	Initializer_new.hpp.orig	27
+Initializer::Initializer	Initializer_bruteforce.hpp	/^	Initializer(DataProvider* provider): dataProvider/
+Initializer::Initializer	Initializer.hpp	/^	Initializer() {};$/
+Initializer::Initializer	Initializer.hpp.backup	/^	Initializer(DataProvider* provider): dataProvider/
+Initializer::Initializer	Initializer_new.hpp	/^	Initializer(DataProvider* provider): dataProvider/
+Initializer::Initializer	Initializer_new.hpp.orig	/^	Initializer(DataProvider* provider): dataProvider/
+Initializer::cellCounter	Initializer.hpp.backup	57
+Initializer::cellCounter	Initializer_new.hpp	47
+Initializer::cellCounter	Initializer_new.hpp.orig	47
+Initializer::dataProvider	Initializer_bruteforce.hpp	22
+Initializer::dataProvider	Initializer.hpp.backup	22
+Initializer::dataProvider	Initializer_new.hpp	23
+Initializer::dataProvider	Initializer_new.hpp.orig	23
+Initializer::operator ()	Initializer.hpp	/^void Initializer::operator ()(const Geometry& geom/
+Initializer::private	Initializer.hpp	164
+Initializer::putDataToBoundaries	Initializer.hpp	/^void Initializer::putDataToBoundaries(const Grid<t/
+Initializer::putLocalDataInside	Initializer.hpp	/^void Initializer::putLocalDataInside(const Grid<ty/
+Initializer::selectBoundaries	Initializer.hpp	/^int Initializer::selectBoundaries(const BoundingBo/
+Initializer::type	Initializer.hpp	160
+Initializer::type	Initializer.hpp	173
+Initializer::type	Initializer.hpp	176
+Initializer::type	Initializer.hpp	181
+Initializer::type	Initializer.hpp	184
+Initializer::~Initializer	Initializer_bruteforce.hpp	/^	~Initializer(){};$/
+Initializer::~Initializer	Initializer.hpp.backup	/^	~Initializer(){};$/
+Initializer::~Initializer	Initializer_new.hpp	/^	~Initializer(){};$/
+Initializer::~Initializer	Initializer_new.hpp.orig	/^	~Initializer(){};$/
+Interface	Data.hpp	25
+Interface	Data.hpp	/^Interface<type, dim>::Interface(Grid<type, dim> *g/
+Interface	Interface.hpp	27
+Interface	Interface.hpp	/^Interface<type, dim>::Interface(const Grid<type, d/
+Interface	Interface.hpp~	23
+Interface	Interface.hpp~	/^template <int dim> Interface<dim>::Interface(Grid</
+Interface::Grid	Data.hpp	28
+Interface::Grid	Data.hpp	58
+Interface::Grid	Interface.hpp	29
+Interface::Grid	Interface.hpp	58
+Interface::globalData	Data.hpp	34
+Interface::globalData	Interface.hpp	35
+Interface::globalData	Interface.hpp~	32
+Interface::gr	Data.hpp	28
+Interface::gr	Interface.hpp	29
+Interface::gr	Interface.hpp~	26
+Interface::localData	Data.hpp	31
+Interface::localData	Interface.hpp	32
+Interface::localData	Interface.hpp~	29
+Iterator	Geometry.hpp.modified	24
+K	Geometry.hpp.modified	19
+K	Geometry.hpp.modified	25
+K	Geometry.hpp.modified	26
+K	Geometry.hpp.modified	29
+L	triagGridTest.o	5102
+LSMWRITTER_HPP_	LSMWritter.hpp	9
+LSMWritter	LSMWritter.hpp	24
+LSMWritter::public	LSMWritter.hpp	25
+LSMWritter::writeData	LSMWritter.hpp	/^	static void writeData(const Interface<type, dim>&/
+M	loadUGtxt.m	24
+MAKECELLLIST	Initializer.hpp	30
+MloadGridTest.cpp	loadGridTest.cpp	/^int main(int argc,char **argv) {$/
+Mpetsctest.cpp.bak	petsctest.cpp.bak	/^int main(int argc,char **argv) {$/
+Mpetsctest.cpp_	petsctest.cpp_	/^int main(int argc,char **argv) {$/
+MtestOctree.cpp	testOctree.cpp	/^int main(int argc,char **argv) {$/
+N	loadUGtxt.m	25
+N	triagGridTest.o	660
+N	triagGridTest.o	4696
+NARROWBAND	Initializer.hpp	29
+OCTREE_HPP_	Octree.hpp	3
+OCTREE_HPP_	Octree.hpp.orig	2
+P	loadUGtxt.m	26
+PP	Geometry.hpp.modified	29
+PUTTOBOUNDARIES	Initializer.hpp	35
+Point	Geometry.hpp.modified	21
+Primitive	Geometry.hpp.modified	25
+R	triagGridTest.o	5517
+R	triagGridTest.o	5521
+REDUCE	Initializer.hpp	34
+SEARCHGRID_HPP_	SearchGrid.hpp	9
+SETUPGROUPS	Initializer.hpp	31
+SPHEREINITIALIZER_HPP_	SphereInitializer.hpp	9
+SPHEREPROVIDER_HPP_	SphereProvider.hpp	9
+STLFILEPROVIDER_HPP_	StlFileProvider.hpp	9
+STLFILEPROVIDER_HPP_	StlFileProvider.hpp.bak	9
+SUB	tribox3.hpp	/^#define SUB(dest,v1,v2) \\$/
+SearchGrid	SearchGrid.hpp	25
+SearchGrid	SearchGrid.hpp	/^SearchGrid<dim>::SearchGrid(const Eigen::Array3d& /
+SearchGrid::BoundingBox	SearchGrid.hpp	54
+SearchGrid::data	SearchGrid.hpp	43
+SearchGrid::dx	SearchGrid.hpp	47
+SearchGrid::m	SearchGrid.hpp	48
+SearchGrid::std::tuple	SearchGrid.hpp	56
+SearchGrid::x_hi	SearchGrid.hpp	46
+SearchGrid::x_lo	SearchGrid.hpp	45
+SignedDistance	TriangleElement.hpp	30
+SignedDistance::angle	TriangleElement.hpp	32
+SignedDistance::dist	TriangleElement.hpp	31
+SignedDistance::minPoint	TriangleElement.hpp	34
+SignedDistance::sign	TriangleElement.hpp	33
+SphereInitializer	SphereInitializer.hpp	16
+SphereInitializer	SphereInitializer.hpp	/^template <int dim> SphereInitializer<dim>::SphereI/
+SphereInitializer::center	SphereInitializer.hpp	19
+SphereInitializer::geometry	SphereInitializer.hpp	25
+SphereInitializer::radius	SphereInitializer.hpp	22
+SphereProvider	SphereProvider.hpp	14
+SphereProvider::SphereProvider	SphereProvider.hpp	/^	SphereProvider() {};$/
+SphereProvider::SphereProvider	SphereProvider.hpp	/^SphereProvider::SphereProvider(std::vector<double>/
+SphereProvider::center	SphereProvider.hpp	19
+SphereProvider::computeDistance	SphereProvider.hpp	/^double SphereProvider::computeDistance(const std::/
+SphereProvider::coords	SphereProvider.hpp	17
+SphereProvider::dim	SphereProvider.hpp	23
+SphereProvider::getCoord	SphereProvider.hpp	/^inline const std::vector<std::vector<double> > & S/
+SphereProvider::getMaxX	SphereProvider.hpp	/^inline const double SphereProvider::getMaxX(int di/
+SphereProvider::getMinX	SphereProvider.hpp	/^inline const double SphereProvider::getMinX(int di/
+SphereProvider::initializeBoundingBox	SphereProvider.hpp	/^void SphereProvider::initializeBoundingBox() {$/
+SphereProvider::initializeGeometry	SphereProvider.hpp	/^void SphereProvider::initializeGeometry() {$/
+SphereProvider::maxX	SphereProvider.hpp	29
+SphereProvider::minX	SphereProvider.hpp	27
+SphereProvider::numberOfPoints	SphereProvider.hpp	25
+SphereProvider::radius	SphereProvider.hpp	21
+StlFileProvider	StlFileProvider.hpp	29
+StlFileProvider	StlFileProvider.hpp.bak	28
+StlFileProvider::BoundingBox	StlFileProvider.hpp.bak	39
+StlFileProvider::BoundingBox	StlFileProvider.hpp.bak	67
+StlFileProvider::BoundingBox	StlFileProvider.hpp.bak	70
+StlFileProvider::StlFileProvider	StlFileProvider.hpp	/^	StlFileProvider(){};$/
+StlFileProvider::StlFileProvider	StlFileProvider.hpp	/^StlFileProvider::StlFileProvider(const char* file)/
+StlFileProvider::StlFileProvider	StlFileProvider.hpp.bak	/^	StlFileProvider(){};$/
+StlFileProvider::StlFileProvider	StlFileProvider.hpp.bak	/^StlFileProvider::StlFileProvider(const char* file)/
+StlFileProvider::aabb	StlFileProvider.hpp.bak	39
+StlFileProvider::computeDistance	StlFileProvider.hpp.bak	/^SignedDistance<double> StlFileProvider::computeDis/
+StlFileProvider::computeDistance	StlFileProvider.hpp.bak	/^double StlFileProvider::computeDistance(double (&p/
+StlFileProvider::computePerpendicularDistance	StlFileProvider.hpp.bak	/^double StlFileProvider::computePerpendicularDistan/
+StlFileProvider::dim	StlFileProvider.hpp.bak	30
+StlFileProvider::elements	StlFileProvider.hpp.bak	34
+StlFileProvider::getElements	StlFileProvider.hpp.bak	/^const std::vector<TriangleElement<double> >& StlFi/
+StlFileProvider::getGridSize	StlFileProvider.hpp.bak	/^const BoundingBox<double, 3> StlFileProvider::getG/
+StlFileProvider::getMinDX	StlFileProvider.hpp.bak	/^const double StlFileProvider::getMinDX(int dimnum)/
+StlFileProvider::getRegion	StlFileProvider.hpp.bak	/^const BoundingBox<double, 3>& StlFileProvider::get/
+StlFileProvider::mindx	StlFileProvider.hpp.bak	36
+StlFileProvider::numberOfElements	StlFileProvider.hpp.bak	32
+StlFileProvider::readFile	StlFileProvider.hpp	/^	virtual void readFile(const char* iname) {};$/
+StlFileProvider::readFile	StlFileProvider.hpp	/^void StlFileProvider::readFile(const char* iname) /
+StlFileProvider::readInputFile	StlFileProvider.hpp.bak	/^void StlFileProvider::readInputFile(const char* in/
+T	Grid.hpp	982
+TRIANGLEELEMENT_HPP_	TriangleElement.hpp	9
+Tree	Geometry.hpp.modified	27
+TreeNode	Octree.hpp	17
+TreeNode	Octree.hpp.orig	14
+TreeNode::BoundingBox	Octree.hpp	22
+TreeNode::TreeNode	Octree.hpp	/^	TreeNode() {$/
+TreeNode::TreeNode	Octree.hpp	/^	TreeNode(double center[3], double halfWidth, int /
+TreeNode::TreeNode	Octree.hpp	/^	TreeNode(BoundingBox<double, 3>& span, int level)/
+TreeNode::TreeNode	Octree.hpp	/^	TreeNode(const TreeNode& node) {$/
+TreeNode::TreeNode	Octree.hpp.orig	/^	TreeNode() {$/
+TreeNode::TreeNode	Octree.hpp.orig	/^	TreeNode(double center[3], double halfWidth, int /
+TreeNode::TreeNode	Octree.hpp.orig	/^	TreeNode(BoundingBox<double, 3>& span, int level)/
+TreeNode::TreeNode	Octree.hpp.orig	/^	TreeNode(const TreeNode& node) {$/
+TreeNode::breadthFirst	Octree.hpp	/^	static std::list<storedData> breadthFirst(TreeNod/
+TreeNode::childs	Octree.hpp	27
+TreeNode::childs	Octree.hpp.orig	24
+TreeNode::data	Octree.hpp	25
+TreeNode::depthFirst	Octree.hpp	/^	static std::list<storedData> depthFirst(TreeNode&/
+TreeNode::elementsInNodeSpan	Octree.hpp.orig	22
+TreeNode::findClosest	Octree.hpp	/^	std::list<storedData> findClosest(Eigen::Vector3d/
+TreeNode::findClosest	Octree.hpp.orig	/^	std::list<int> findClosest(Eigen::Vector3d& point/
+TreeNode::insertElement	Octree.hpp.orig	/^	void insertElement(const std::shared_ptr<Triangle/
+TreeNode::insertObject	Octree.hpp	/^	void insertObject(const BoundingBox<double, 3>& o/
+TreeNode::level	Octree.hpp	20
+TreeNode::nodeID	Octree.hpp	19
+TreeNode::nodeSpan	Octree.hpp	22
+TreeNode::operator=	Octree.hpp	/^	TreeNode operator=(const TreeNode& node) {$/
+TreeNode::operator=	Octree.hpp.orig	/^	TreeNode operator=(const TreeNode& node) {$/
+TreeNode::~TreeNode	Octree.hpp	/^	~TreeNode() {$/
+TreeNode::~TreeNode	Octree.hpp.orig	/^	~TreeNode() {$/
+Triangle	Geometry.hpp.modified	20
+TriangleElement	TriangleElement.hpp	39
+TriangleElement	TriangleElement.hpp	/^TriangleElement<type>::TriangleElement(Eigen::Vect/
+TriangleElement	TriangleElement.hpp	/^TriangleElement<type>::TriangleElement(std::vector/
+TriangleElement::BoundingBox	TriangleElement.hpp	81
+TriangleElement::ID	TriangleElement.hpp	54
+TriangleElement::TriangleElement	TriangleElement.hpp	/^	TriangleElement(): ID(-1) {};$/
+TriangleElement::TriangleElement	TriangleElement.hpp	/^	TriangleElement(const TriangleElement<type> & ele/
+TriangleElement::normal	TriangleElement.hpp	49
+TriangleElement::std::vector	TriangleElement.hpp	46
+TriangleElement::vertices	TriangleElement.hpp	46
+UB	triagGridTest.o	5276
+UTILITY_H_	utility.h	9
+W	triagGridTest.o	1484
+X	loadUGtxt.m	31
+X	tribox3.hpp	17
+Y	loadUGtxt.m	32
+Y	triagGridTest.o	4838
+Y	tribox3.hpp	18
+Z	loadUGtxt.m	33
+Z	tribox3.hpp	19
+_INITIALIZER_HPP_	Initializer.hpp	3
+__FUNCT__	loadGridTest.cpp	11
+__FUNCT__	loadGridTest.cpp	12
+__FUNCT__	petsctest.cpp_	29
+__FUNCT__	petsctest.cpp_	30
+__FUNCT__	petsctest.cpp.bak	25
+__FUNCT__	petsctest.cpp.bak	26
+__FUNCT__	triagGridTest.cpp	25
+__FUNCT__	triagGridTest.cpp	26
+boost	Initializer.hpp	147
+boost::mpi	Initializer.hpp	147
+boost::mpi::mpl::true_	Initializer.hpp	149
+cDistance	Geometry.hpp	19
+cDistance	Geometry.hpp.orig	17
+cDistance	Geometry.hpp.orig	/^	cDistance() : signedDistance(std::numeric_limits</
+cDistance::cDistance	Geometry.hpp	/^	cDistance() : signedDistance(std::numeric_limits</
+cDistance::cDistance	Geometry.hpp	/^	cDistance(double sd, double pd) : signedDistance(/
+cDistance::cDistance	Geometry.hpp.orig	/^	cDistance(double sd, double pd) : signedDistance(/
+cDistance::pDistance	Geometry.hpp	21
+cDistance::serialize	Geometry.hpp	/^	void serialize (Archive& ar, const unsigned int v/
+cDistance::serialize	Geometry.hpp.orig	/^	void serialize (Archive& ar, const unsigned int v/
+cDistance::signedDistance	Geometry.hpp	20
+cellBox	SearchGrid.hpp	/^BoundingBox<double, dim> SearchGrid<dim>::cellBox(/
+centroid	TriangleElement.hpp	/^inline Eigen::Vector3d TriangleElement<type>::cent/
+computeDistance	TriangleElement.hpp	/^inline SignedDistance<type> TriangleElement<type>:/
+computePerpendicularDistance	TriangleElement.hpp	/^inline type TriangleElement<type>::computePerpendi/
+compute_distance	Geometry.hpp.modified	/^inline std::pair<double,double> compute_distance(c/
+count	loadUGtxt.m	17
+dataFromPosition	SearchGrid.hpp	/^std::list<TriangleElement<double> > SearchGrid<dim/
+double	Octree.hpp.orig	19
+dx	loadUGtxt.m	7
+elementBoxDistanceData	Initializer.hpp	38
+elementBoxDistanceData::BoundingBox	Initializer.hpp	39
+elementBoxDistanceData::box	Initializer.hpp	39
+elementBoxDistanceData::elementBoxDistanceData	Initializer.hpp	/^	elementBoxDistanceData() : numberOfCells(-1), sd(/
+elementBoxDistanceData::elementBoxDistanceData	Initializer.hpp	/^	elementBoxDistanceData(const BoundingBox<int, 3>&/
+elementBoxDistanceData::elementBoxDistanceData	Initializer.hpp	/^	elementBoxDistanceData(const BoundingBox<int, 3>&/
+elementBoxDistanceData::elementBoxDistanceData	Initializer.hpp	/^	elementBoxDistanceData(const elementBoxDistanceDa/
+elementBoxDistanceData::load	Initializer.hpp	/^	void load(Archive & ar, const unsigned int versio/
+elementBoxDistanceData::numberOfCells	Initializer.hpp	40
+elementBoxDistanceData::operator=	Initializer.hpp	/^	elementBoxDistanceData& operator=(const elementBo/
+elementBoxDistanceData::pd	Initializer.hpp	41
+elementBoxDistanceData::save	Initializer.hpp	/^	void save(Archive & ar, const unsigned int versio/
+elementBoxDistanceData::sd	Initializer.hpp	41
+elementBoxDistanceData::~elementBoxDistanceData	Initializer.hpp	/^	~elementBoxDistanceData() {$/
+figure	loadUGtxt.m	45
+getArray	Data.hpp	/^PetscReal* Interface<type, dim>::getArray() {$/
+getArray	Interface.hpp	/^PetscReal* Interface<type, dim>::getArray() {$/
+getArray	Interface.hpp~	/^template <int dim> PetscReal* Interface<dim>::getA/
+getBoundingBox	TriangleElement.hpp	/^inline BoundingBox<type, 3> TriangleElement<type>:/
+getCoord	Grid.hpp	/^inline Eigen::Vector3d Grid<type, dim>::getCoord(c/
+getCoordinate	Grid.hpp	/^inline PetscReal Grid<type, dim>::getCoordinate(Pe/
+getDataPosition	Grid.hpp	/^int Grid<type, dim>::getDataPosition(const type po/
+getDx	Grid.hpp	/^inline PetscReal Grid<type, dim>::getDx(PetscInt d/
+getGlobalBoxIndices	Grid.hpp	/^BoundingBox<PetscInt, dim> Grid<type, dim>::getGlo/
+getGrid	Data.hpp	/^Grid<type, dim>* Interface<type, dim>::getGrid() {/
+getGrid	Interface.hpp	/^const Grid<type, dim>& Interface<type, dim>::getGr/
+getGrid	Interface.hpp~	/^Grid<dim>* Interface<dim>::getGrid() {$/
+getLinearIndex	Grid.hpp	/^inline long int Grid<type, dim>::getLinearIndex(Pe/
+getLinearIndex	Grid.hpp	/^inline long int Grid<type, dim>::getLinearIndex(st/
+getLocalCoord	Grid.hpp	/^inline const std::vector<PetscReal> Grid<type, dim/
+getLocalCoord	Grid.hpp	/^inline Eigen::Vector3d Grid<type, dim>::getLocalCo/
+getLocalCoord	Grid.hpp	/^inline const std::vector<PetscReal> Grid<type, dim/
+getLocalData	Data.hpp	/^std::vector<PetscReal> Interface<type, dim>::getLo/
+getLocalData	Interface.hpp	/^Vec Interface<type, dim>::getLocalData() const {$/
+getLocalData	Interface.hpp~	/^template <int dim> std::vector<PetscReal> Interfac/
+getLocalGhostedMax	Grid.hpp	/^inline PetscReal Grid<type, dim>::getLocalGhostedM/
+getLocalGhostedMin	Grid.hpp	/^inline PetscReal Grid<type, dim>::getLocalGhostedM/
+getLocalGhostedRegion	Grid.hpp	/^inline BoundingBox<double, 3> Grid<type, dim>::get/
+getLocalInfo	Grid.hpp	/^const DMDALocalInfo* Grid<type, dim>::getLocalInfo/
+getLocalM	Grid.hpp	/^inline PetscInt Grid<type, dim>::getLocalM(PetscIn/
+getLocalMax	Grid.hpp	/^inline PetscReal Grid<type, dim>::getLocalMax(Pets/
+getLocalMin	Grid.hpp	/^inline PetscReal Grid<type, dim>::getLocalMin(Pets/
+getM	Grid.hpp	/^inline PetscInt Grid<type, dim>::getM(PetscInt dim/
+getMax	Grid.hpp	/^inline PetscReal Grid<type, dim>::getMax(PetscInt /
+getMaxDist	Grid.hpp	/^inline PetscReal Grid<type, dim>::getMaxDist() con/
+getMin	Grid.hpp	/^inline PetscReal Grid<type, dim>::getMin(PetscInt /
+getNodeBoundaryCells	Grid.hpp	/^std::vector<Eigen::Vector3d, Eigen::aligned_alloca/
+getNodeSpan	Grid.hpp	/^BoundingBox<double, dim> Grid<type, dim>::getNodeS/
+getNodeSpan	Grid.hpp	/^BoundingBox<double, dim> Grid<type, dim>::getNodeS/
+getNodeSpan	Grid.hpp	/^BoundingBox<double, dim> Grid<type, dim>::getNodeS/
+getNumberOfCells	Grid.hpp	/^inline long int Grid<type, dim>::getNumberOfCells(/
+getNumberOfLocalCells	Grid.hpp	/^inline long int Grid<type, dim>::getNumberOfLocalC/
+getPointSpan	Grid.hpp	/^BoundingBox<PetscInt, dim>& Grid<type, dim>::getPo/
+getProcessSpan	Grid.hpp	/^std::list<int> Grid<type, dim>::getProcessSpan(con/
+getStencilSize	Grid.hpp	/^inline PetscReal Grid<type, dim>::getStencilSize()/
+h3	triagGridTest.o	2383
+haveAllGeometry	Initializer.hpp.backup	/^	bool Initializer<DataProvider, dim>::haveAllGeome/
+haveAllGeometry	Initializer_new.hpp	/^template <typename DataProvider, int dim> bool Ini/
+haveAllGeometry	Initializer_new.hpp.orig	/^template <typename DataProvider, int dim> bool Ini/
+haveAllGeometry	SphereInitializer.hpp	/^template <int dim> bool SphereInitializer<dim>::ha/
+haveCoordinate	Initializer.hpp.backup	/^ Initializer<DataProvider, dim>::haveCoordinate(co/
+haveCoordinate	Initializer_new.hpp	/^ Initializer<DataProvider, dim>::haveCoordinate(co/
+haveCoordinate	Initializer_new.hpp.orig	/^ Initializer<DataProvider, dim>::haveCoordinate(co/
+haveElement	Initializer_new.hpp	/^Initializer<DataProvider, dim>::haveElement(Triang/
+haveElement	Initializer_new.hpp.orig	/^Initializer<DataProvider, dim>::haveElement(Triang/
+haveSomeGeometry	Initializer.hpp.backup	/^template <typename DataProvider, int dim> bool Ini/
+haveSomeGeometry	Initializer_new.hpp	/^template <typename DataProvider, int dim> bool Ini/
+haveSomeGeometry	Initializer_new.hpp.orig	/^template <typename DataProvider, int dim> bool Ini/
+help	petsctest.cpp_	1
+help	petsctest.cpp.bak	1
+init	Grid.hpp	/^void Grid<type, dim>::init(PetscReal* minX, PetscR/
+initialize	Data.hpp	/^void Interface<type, dim>::initialize(Initializer</
+initialize	Interface.hpp~	/^void Interface<dim>::initialize(Initializer<DataPr/
+initializeGeometry	SphereInitializer.hpp	/^template <int dim> void SphereInitializer<dim>::in/
+insertElement	SearchGrid.hpp	/^void SearchGrid<dim>::insertElement(const Triangle/
+isInsideRegion	TriangleElement.hpp	/^inline bool TriangleElement<type>::isInsideRegion(/
+isPartlyInRegion	TriangleElement.hpp	/^inline bool TriangleElement<type>::isPartlyInRegio/
+iterator	Geometry.hpp	262
+iterator	Geometry.hpp.orig	262
+level	Octree.hpp.orig	17
+listOfSpannedCells	SearchGrid.hpp	/^std::tuple<Eigen::Array3i, Eigen::Array3i> SearchG/
+locateBoxIndices	Grid.hpp	/^BoundingBox<PetscInt, 3> Grid<type, dim>::locateBo/
+locateIndex	Initializer.hpp.backup	/^	BoundingBox<int, dim> Initializer<DataProvider, d/
+locateIndices	Initializer.hpp.backup	/^     Initializer<DataProvider, dim>::locateIndices/
+locateIndices	SphereInitializer.hpp	/^     SphereInitializer<dim>::locateIndices(const s/
+lsm	Interface.hpp	22
+lsm	LSMWritter.hpp	20
+max	TriangleElement.hpp	11
+min	TriangleElement.hpp	12
+my_eps	utility.h	11
+nodeID	Octree.hpp.orig	16
+nodeSpan	Octree.hpp.orig	19
+operator()	SearchGrid.hpp	/^inline std::list<TriangleElement<double> > SearchG/
+operator<<	Geometry.hpp	/^std::ostream& operator<<(std::ostream& os, const G/
+operator<<	Geometry.hpp.modified	/^std::ostream& operator<<(std::ostream& os, const G/
+operator<<	Geometry.hpp.orig	/^std::ostream& operator<<(std::ostream& os, const G/
+operator<<	Grid.hpp	/^std::ostream& operator<< (std::ostream& os, const /
+operator<<	Octree.hpp	/^std::ostream& operator<<(std::ostream& os, const T/
+operator<<	Octree.hpp.orig	/^std::ostream& operator<<(std::ostream& os, const T/
+operator<<	SearchGrid.hpp	/^std::ostream& operator<<(std::ostream& os, const S/
+operator<<	StlFileProvider.hpp	/^std::ostream& operator<<(std::ostream& os, const S/
+operator<<	StlFileProvider.hpp.bak	/^std::ostream& operator<<(std::ostream& os, const S/
+operator<<	TriangleElement.hpp	/^std::ostream& operator<<(std::ostream& os, const T/
+pDistance	Geometry.hpp.orig	19
+phi	loadUGtxt.m	1
+phi	loadUGtxt.m	19
+phi	loadUGtxt.m	35
+planeBoxOverlap	tribox3.hpp	/^int planeBoxOverlap(float normal[3], float vert[3]/
+restoreArray	Data.hpp	/^void Interface<type, dim>::restoreArray(PetscReal*/
+restoreArray	Interface.hpp	/^void Interface<type, dim>::restoreArray(PetscReal*/
+restoreArray	Interface.hpp~	/^template <int dim> void Interface<dim>::restoreArr/
+s	triagGridTest.o	10832
+saveForMatlab	Data.hpp	/^void Interface<type, dim>::saveForMatlab(char* fil/
+saveForMatlab	Interface.hpp	/^void Interface<type, dim>::saveForMatlab(char* fil/
+saveForMatlab	Interface.hpp~	/^void Interface<dim>::saveForMatlab(char* file) {$/
+saveForParaView	Data.hpp	/^void Interface<type, dim>::saveForParaView(char* f/
+saveForParaView	Interface.hpp	/^void Interface<type, dim>::saveForParaView(char* f/
+saveToHDF5	Data.hpp	/^void Interface<type, dim>::saveToHDF5(char* file) /
+sdfMinimum	Initializer.hpp	125
+sdfMinimum::operator()	Initializer.hpp	/^	T operator() (const T& x, const T& y) const {$/
+sdfMinimum::sdfMinimum	Initializer.hpp	/^	sdfMinimum() {};$/
+selectBoundaries	Initializer.hpp.backup	/^template <typename DataProvider, int dim> int Init/
+selectBoundaries	Initializer_new.hpp	/^template <typename DataProvider, int dim> int Init/
+selectBoundaries	Initializer_new.hpp.orig	/^template <typename DataProvider, int dim> int Init/
+selectBoundaries	SphereInitializer.hpp	/^template <int dim> std::vector<bool> SphereInitial/
+setLocalData	Data.hpp	/^void Interface<type, dim>::setLocalData(const std:/
+setLocalData	Interface.hpp	/^void Interface<type, dim>::setLocalData(const std:/
+setLocalData	Interface.hpp~	/^template <int dim> void Interface<dim>::setLocalDa/
+signedDistance	Geometry.hpp.orig	18
+sphereEquation	SphereInitializer.hpp	/^template <int dim> PetscReal SphereInitializer<dim/
+tictoc	tictoc.hpp	10
+tictoc::M	triagGridTest.cpp	33
+tictoc::NP	triagGridTest.cpp	34
+tictoc::flg	triagGridTest.cpp	39
+tictoc::fmm_time	triagGridTest.cpp	40
+tictoc::fmm_time	triagGridTest.cpp	143
+tictoc::fname	triagGridTest.cpp	37
+tictoc::groupID	triagGridTest.cpp	100
+tictoc::growCoef	triagGridTest.cpp	87
+tictoc::help	triagGridTest.cpp	2
+tictoc::ierr	triagGridTest.cpp	29
+tictoc::ierr	triagGridTest.cpp	42
+tictoc::ierr	triagGridTest.cpp	127
+tictoc::ierr	triagGridTest.cpp	132
+tictoc::ierr	triagGridTest.cpp	140
+tictoc::ierr	triagGridTest.cpp	156
+tictoc::init	triagGridTest.cpp	122
+tictoc::init_time	triagGridTest.cpp	40
+tictoc::init_time	triagGridTest.cpp	142
+tictoc::interface	triagGridTest.cpp	120
+tictoc::load_time	triagGridTest.cpp	40
+tictoc::main	triagGridTest.cpp	/^int main(int argc,char **argv) {$/
+tictoc::max	triagGridTest.cpp	104
+tictoc::min	triagGridTest.cpp	104
+tictoc::oname	triagGridTest.cpp	38
+tictoc::prefix	tictoc.hpp	27
+tictoc::procsPerGroup	triagGridTest.cpp	99
+tictoc::rank	triagGridTest.cpp	94
+tictoc::shift	triagGridTest.cpp	129
+tictoc::size	triagGridTest.cpp	94
+tictoc::t0	triagGridTest.cpp	40
+tictoc::t1	triagGridTest.cpp	40
+tictoc::t2	triagGridTest.cpp	40
+tictoc::t3	triagGridTest.cpp	40
+tictoc::t4	triagGridTest.cpp	40
+tictoc::t5	triagGridTest.cpp	40
+tictoc::tic	tictoc.hpp	/^	void tic() {$/
+tictoc::tictoc	tictoc.hpp	/^	tictoc() : prefix("#tictoc") {};$/
+tictoc::tictoc	tictoc.hpp	/^	tictoc(const std::string& pref) : prefix(pref) {}/
+tictoc::time	tictoc.hpp	29
+tictoc::time_now	tictoc.hpp	28
+tictoc::tmpM	triagGridTest.cpp	60
+tictoc::tmpN	triagGridTest.cpp	60
+tictoc::tmpP	triagGridTest.cpp	60
+tictoc::toc	tictoc.hpp	/^	void toc(int rank, int catID, const std::string& /
+tictoc::write_out	triagGridTest.cpp	31
+toIndices	SearchGrid.hpp	/^Eigen::Array3i SearchGrid<dim>::toIndices(const Ei/
+toLinear	SearchGrid.hpp	/^long int SearchGrid<dim>::toLinear(const Eigen::Ar/
+triBoxOverlap	tribox3.hpp	/^int triBoxOverlap(float boxcenter[3],float boxhalf/
+type	Data.hpp	24
+type	Data.hpp	67
+type	Data.hpp	79
+type	Data.hpp	85
+type	Data.hpp	111
+type	Data.hpp	138
+type	Data.hpp	152
+type	Data.hpp	163
+type	Data.hpp	182
+type	Data.hpp	265
+type	Data.hpp	271
+type	Data.hpp	309
+type	Data.hpp	334
+type	Grid.hpp	76
+type	Grid.hpp	277
+type	Grid.hpp	434
+type	Grid.hpp	446
+type	Grid.hpp	480
+type	Grid.hpp	491
+type	Grid.hpp	510
+type	Grid.hpp	523
+type	Grid.hpp	528
+type	Grid.hpp	533
+type	Grid.hpp	538
+type	Grid.hpp	543
+type	Grid.hpp	548
+type	Grid.hpp	553
+type	Grid.hpp	558
+type	Grid.hpp	563
+type	Grid.hpp	568
+type	Grid.hpp	578
+type	Grid.hpp	588
+type	Grid.hpp	596
+type	Grid.hpp	606
+type	Grid.hpp	616
+type	Grid.hpp	626
+type	Grid.hpp	635
+type	Grid.hpp	652
+type	Grid.hpp	658
+type	Grid.hpp	677
+type	Grid.hpp	685
+type	Grid.hpp	698
+type	Grid.hpp	742
+type	Grid.hpp	765
+type	Grid.hpp	791
+type	Grid.hpp	804
+type	Grid.hpp	829
+type	Grid.hpp	844
+type	Grid.hpp	851
+type	Grid.hpp	858
+type	Initializer.hpp	195
+type	Initializer.hpp	477
+type	Initializer.hpp	574
+type	Interface.hpp	26
+type	Interface.hpp	71
+type	Interface.hpp	83
+type	Interface.hpp	89
+type	Interface.hpp	97
+type	Interface.hpp	124
+type	Interface.hpp	138
+type	Interface.hpp	170
+type	Interface.hpp	235
+type	Interface.hpp	241
+type	Interface.hpp	279
+updateArray	Initializer_bruteforce.hpp	/^template <typename DataProvider, int dim> PetscRea/
+updateArray	Initializer.hpp.backup	/^template <typename DataProvider, int dim> PetscRea/
+updateArray	Initializer_new.hpp	/^template <typename DataProvider, int dim> void Ini/
+updateArray	Initializer_new.hpp.orig	/^template <typename DataProvider, int dim> void Ini/
+updateArray	SphereInitializer.hpp	/^template <int dim> PetscReal* SphereInitializer<di/
+writeData	Data.hpp	/^void Interface<type, dim>::writeData(char* file) {/
+writeData	Interface.hpp	/^void Interface<type, dim>::writeData(char* file) {/
+writeData	Interface.hpp~	/^void Interface<dim>::writeData(char* file) {$/
+~	triagGridTest.o	2387
+~Grid	Grid.hpp	/^Grid<type, dim>::~Grid() {$/
+~Interface	Data.hpp	/^Interface<type, dim>::~Interface() {$/
+~Interface	Interface.hpp	/^Interface<type, dim>::~Interface() {$/
+~Interface	Interface.hpp~	/^template <int dim> Interface<dim>::~Interface() {$/

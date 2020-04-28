@@ -1,0 +1,26 @@
+var struct_box =
+[
+    [ "Box", "struct_box.html#a2f648d022fb73e02b3251c012d1a9a12", null ],
+    [ "Box", "struct_box.html#a55d85c2825673e6cf41d10276bdb32f7", null ],
+    [ "Box", "struct_box.html#afd95f443418d24dfe6ce02cbf28a5d82", null ],
+    [ "Box", "struct_box.html#ac2d9426cbf066d01562e8a9389be1f3c", null ],
+    [ "Box", "struct_box.html#a0a332a1c1b8b181471f44749563096fd", null ],
+    [ "bl", "struct_box.html#ae09a1c8002e58c1f9f08759ac35d1eb4", null ],
+    [ "center", "struct_box.html#a4630f8e9c0223083d35f1a4e2fd07569", null ],
+    [ "closestPoint", "struct_box.html#a63c69f199af9d0c10e9a308eaf1bd24d", null ],
+    [ "dims", "struct_box.html#a662798e8ea24502777e19fdc487b9ba0", null ],
+    [ "expand", "struct_box.html#a67dcee6dbc6fb6b382674dc96dd18bac", null ],
+    [ "extent", "struct_box.html#a5e3af223e469c7c3d4cd542b922d5632", null ],
+    [ "grow", "struct_box.html#afa69c2f209a0bfed0484e211078f3e80", null ],
+    [ "intersect", "struct_box.html#ac4ba3a4b8cbdbb0968dcd3d39b2c3a23", null ],
+    [ "intersects", "struct_box.html#aa313daa4a2aa03bf8c00bcc472981ae4", null ],
+    [ "maxX", "struct_box.html#ad6eefcdc1c8411513460a06e9704ded1", null ],
+    [ "minX", "struct_box.html#a33e81b15be7e9443801a9701c00212e8", null ],
+    [ "operator()", "struct_box.html#a23eeaddefdb05511dc323bf1f38c1d5d", null ],
+    [ "pointInside", "struct_box.html#a45f5e6d2e40ad59bfc5653edd3772bed", null ],
+    [ "shiftCenter", "struct_box.html#a6e60233de4ed0acbd1cbf5bb2d5aeb8f", null ],
+    [ "sqDistToPoint", "struct_box.html#a1ee5a5a27d08c27972eaa5eeea79e5d8", null ],
+    [ "tr", "struct_box.html#a054038f9a40438e4ac7fb0f0ec54b759", null ],
+    [ "_bl", "struct_box.html#a495a1314c3cf90a0cef938e6a735c999", null ],
+    [ "_tr", "struct_box.html#a1ab2cfa0d18fd78a751b1d8d85adaee8", null ]
+];

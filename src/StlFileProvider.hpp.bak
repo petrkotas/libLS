@@ -1,0 +1,378 @@
+/*
+ * StlFileProvider.hpp
+ *
+ *  Created on: Nov 15, 2012
+ *      Author: petr
+ */
+
+#ifndef STLFILEPROVIDER_HPP_
+#define STLFILEPROVIDER_HPP_
+
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <limits>
+#include <petscsys.h>
+#include <Eigen/Dense>
+// #include <boost/iostreams/device/back_inserter.hpp>
+// #include <boost/iostreams/stream.hpp>
+// #include <boost/archive/binary_oarchive.hpp>
+// #include <boost/archive/binary_iarchive.hpp>
+// #include <boost/serialization/vector.hpp>
+#include "TriangleElement.hpp"
+#include "BoundingBox.hpp"
+
+
+/// Loads the data from the STL file and creates geometry class which stores the elements inside.
+class StlFileProvider {
+
+	int dim;
+
+	long int numberOfElements;
+
+	std::vector<TriangleElement<double> > elements;
+
+	Eigen::Array3d mindx;
+
+	// tight bounding box around the geometry
+	BoundingBox<double, 3> aabb;
+
+	// private functions, not part of public api
+
+	void readInputFile(const char* iname);
+
+
+public:
+	StlFileProvider(){};
+	StlFileProvider(const char* file);
+
+	// return reference to internal storage with elements
+	const std::vector<TriangleElement<double> >& getElements() const;
+
+	// compute signed distance to the asked triangle
+	SignedDistance<double> computeDistance(const TriangleElement<double>& el, double (&point)[3]);
+
+	// compute minimal distance to stored geometry
+	double computeDistance(double (&point)[3]);
+
+
+	double computePerpendicularDistance(const TriangleElement<double>& el, double (&point)[3]);
+
+
+	const double getMinX(int dim) const; // deprecated - used to get lower boundary
+	const double getMaxX(int dim) const; // deprecated - used to get upper boundary
+
+	// get tight bounding box aroung geometry
+	const BoundingBox<double, 3>& getRegion() const;
+
+	// get blown up size of the tight BB for grid
+	const BoundingBox<double, 3> getGridSize(double blowUpSize) const;
+
+	const double getMinDX(int dimnum) const;
+
+	friend std::ostream& operator<<(std::ostream& os, const StlFileProvider& provider);
+
+};
+
+
+///====================================
+///          Implementation
+///====================================
+
+
+StlFileProvider::StlFileProvider(const char* file) {
+
+	int rank; MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
+	//readInputFile(file);
+
+}
+
+
+void StlFileProvider::readInputFile(const char* iname) {
+
+	std::ifstream iFile;
+	char          line[120];
+	char          name[20];
+
+	iFile.open(iname);
+
+	// read first line and the name of the body from it
+	if (!iFile.is_open()) {
+		// file not existent or some other stuff
+		// throw error? :)
+	}
+
+	// read first line and the name of the body from it
+	iFile.getline(line, 120);
+
+	sscanf(line, "%*s %s", name);
+
+	long int nElements     = 0;
+	long int nNormals      = 0;
+	long int nVertices     = 0;
+	int      nFacet        = 0;
+	int      nOuter        = 0;
+	int      vertexCounter = 0;
+
+	aabb.maxX[0] = -std::numeric_limits<double>::max();
+	aabb.maxX[1] = -std::numeric_limits<double>::max();
+	aabb.maxX[2] = -std::numeric_limits<double>::max();
+
+	aabb.minX[0] = std::numeric_limits<double>::max();
+	aabb.minX[1] = std::numeric_limits<double>::max();
+	aabb.minX[2] = std::numeric_limits<double>::max();
+
+
+	TriangleElement<double> workingElement;
+	elements.reserve(11000000);
+
+	std::vector<Eigen::Vector3d > vertices;
+
+
+	// go through the rest of the lines and load the data
+	while ( iFile.getline(line, 120)) {
+
+		char flag[120];
+
+		sscanf(line, "%s", flag);
+
+		if ( strstr(line, "facet normal") ) {
+			// load the normal, we do not use them, but lets read them
+			double normal[3];
+			sscanf(line, "%*s %*s %lf %lf %lf", &normal[0], &normal[1], &normal[2]);
+
+			workingElement.ID = nElements; // simply element number
+
+			nFacet++;
+			nElements++;
+			nNormals++;
+		}
+		if ( strstr(flag, "outer") ) {
+			nOuter++;
+			vertexCounter = 0;
+		}
+		if ( strstr(flag, "vertex")  != 0 ) {
+			Eigen::Vector3d vertex;
+
+			sscanf(line, "%*s %lf %lf %lf", &vertex[0],
+										    &vertex[1],
+										    &vertex[2]);
+
+			if (aabb.maxX[0] < vertex[0])
+				aabb.maxX[0] = vertex[0];
+			if (aabb.maxX[1] < vertex[1])
+				aabb.maxX[1] = vertex[1];
+			if (aabb.maxX[2] < vertex[2])
+				aabb.maxX[2] = vertex[2];
+
+			if (aabb.minX[0] > vertex[0])
+				aabb.minX[0] = vertex[0];
+			if (aabb.minX[1] > vertex[1])
+				aabb.minX[1] = vertex[1];
+			if (aabb.minX[2] > vertex[2])
+				aabb.minX[2] = vertex[2];
+
+			vertices.push_back(vertex);
+
+			nVertices++;
+			vertexCounter++;
+		}
+		if ( strstr(flag, "endloop")  != 0 ) {
+			nOuter--;
+		}
+		if ( strstr(line, "endfacet")) {
+
+			// compute dx, dy, dz
+			double dx;
+
+			TriangleElement<double> tr(vertices[0], vertices[1], vertices[2], nElements);
+
+			elements.push_back( tr );
+
+//			std::cout << tr << std::endl;
+
+			nFacet--;
+			vertices.clear();
+		}
+
+		// read next line
+		line[0] = 'X';
+
+	}
+
+	if ( (nFacet != 0) && (nOuter != 0) && ((nVertices/3) != nElements) ) {
+		// file was loaded incorectly, some shit happened
+		std::cout << "Error" << std::endl;
+	}
+
+	numberOfElements = nElements;
+	dim              = 3;
+
+//	std::cout << aabb << std::endl;
+
+	iFile.close();
+
+	// done loading elemenents
+
+}
+
+SignedDistance<double> StlFileProvider::computeDistance(const TriangleElement<double>& el, double (&point)[3]) {
+	// used to compute distance to element
+	Eigen::Vector3d pt;
+	pt << point[0], point[1], point[2];
+	return TriangleElement<double>::computeDistance(el, pt);
+}
+
+double StlFileProvider::computePerpendicularDistance(const TriangleElement<double>& el, double (&point)[3]) {
+	// used to compute distance to element
+	Eigen::Vector3d pt;
+	pt << point[0], point[1], point[2];
+	return TriangleElement<double>::perpendicularDistance(el, pt);
+}
+
+
+double StlFileProvider::computeDistance(double (&point)[3]) {
+	// used to compute minimal distance to surface
+
+	double eps      = 1E-05;
+	double distance = std::numeric_limits<double>::max();
+	std::vector<std::pair<SignedDistance<double>, TriangleElement<double> > > distanceStack;
+	distanceStack.reserve(100);
+
+	Eigen::Vector3d pt;
+	pt << point[0], point[1], point[2];
+
+
+	// compute the minimum distance
+	for (auto it = elements.begin(); it != elements.end(); ++it) {
+		SignedDistance<double> tmpDist = TriangleElement<double>::computeDistance(*it, pt);
+
+		if ( tmpDist.dist < eps ) {
+			// distance is zero, so be it
+			distance = eps;
+
+		} else if ( fabs(tmpDist.dist - distance) < eps ) {
+			// little bit tricky case, old distance and this distance is the same. Put in the stack for later processing
+			distance = tmpDist.dist;
+			distanceStack.push_back( std::make_pair(tmpDist, *it) );
+		} else if ( tmpDist.dist <= fabs(distance) ) {
+			// nothing happend, it seems like a nice calm solution
+			distance = tmpDist.dist;
+			distanceStack.push_back( std::make_pair(tmpDist, *it) );
+		}
+
+//		distanceStack.push_back(std::make_pair(tmpDist, *it));
+
+	}
+
+	// compute the correct sign based on walking through the stored values
+//	double oldOrtDist        = -std::numeric_limits<double>::max();
+	int    maxStepsToHistory =  10;
+
+	auto currentDistPair  = distanceStack.back();
+
+	// compute projection onto surface defined by the triangle element
+//	double v[3] = { point[0] - currentDistPair.first.minPoint[0],
+//					point[1] - currentDistPair.first.minPoint[1],
+//					point[2] - currentDistPair.first.minPoint[2] };
+//
+//	oldOrtDist  =    fabs( currentDistPair.second.normal[0] * v[0] +
+//						   currentDistPair.second.normal[1] * v[1] +
+//						   currentDistPair.second.normal[2] * v[2]   );
+
+
+	double oldOrtDist = TriangleElement<double>::perpendicularDistance(currentDistPair.second, pt);
+
+
+	auto selectedDistPair = currentDistPair;
+	distanceStack.pop_back();
+
+	for (int item = 0; item < maxStepsToHistory; ++item) {
+		if ( distanceStack.empty() )
+			break;
+
+		auto currentDistPair = distanceStack.back();
+
+		if ( !(fabs( currentDistPair.first.dist - selectedDistPair.first.dist ) < eps) ) {
+			// if the next one is not equal, than we already found the right solution. Lets go for it
+			break;
+		}
+
+		// compute projection onto surface defined by the triangle element
+//		double v_t[3] = { point[0] - currentDistPair.first.minPoint[0],
+//						  point[1] - currentDistPair.first.minPoint[1],
+//						  point[2] - currentDistPair.first.minPoint[2] };
+//thu
+//		double ortDist = fabs( currentDistPair.second.normal[0] * v_t[0] +
+//							   currentDistPair.second.normal[1] * v_t[1] +
+//							   currentDistPair.second.normal[2] * v_t[2]   );
+
+		double ortDist = TriangleElement<double>::perpendicularDistance(currentDistPair.second, pt);
+
+		if (oldOrtDist < ortDist) {
+			// the new distance is bigger that means it is better
+			oldOrtDist       = ortDist;
+			selectedDistPair = currentDistPair;
+		}
+
+		distanceStack.pop_back();
+		continue;
+
+
+	}
+
+	return  selectedDistPair.first.dist * selectedDistPair.first.sign;
+
+}
+
+
+const std::vector<TriangleElement<double> >& StlFileProvider::getElements() const {
+	return elements;
+}
+
+const BoundingBox<double, 3>& StlFileProvider::getRegion() const {
+	return aabb;
+}
+
+const BoundingBox<double, 3> StlFileProvider::getGridSize(double blowUpSize) const {
+	BoundingBox<double, 3> bb;
+
+	for (int i = 0; i < dim; ++i) {
+		double len = (aabb.maxX[i] - aabb.minX[i]);
+		bb.minX[i] = aabb.minX[i] - blowUpSize*len;
+		bb.maxX[i] = aabb.maxX[i] + blowUpSize*len;
+	}
+
+	return bb;
+}
+
+const double StlFileProvider::getMinDX(int dimnum) const {
+	if (dimnum == 0) {
+		double tmpmin = std::numeric_limits<double>::max();
+		for (int i = 0; i < 3; ++i)
+			if (mindx[i] < tmpmin)
+				tmpmin = mindx[i];
+
+		return tmpmin;
+	} else if (dimnum < 3){
+		return mindx[dimnum];
+	}
+
+	return -1;
+}
+
+// ostream operators
+
+
+std::ostream& operator<<(std::ostream& os, const StlFileProvider& provider) {
+
+	os << "Dimension : " << provider.dim << std::endl;
+	os << "Number of elements: " << provider.numberOfElements << std::endl;
+	os << "Min DX : " << provider.mindx[0] << ", " << provider.mindx[1] << ", " << provider.mindx[2] << std::endl;
+	os << "AABB : " << provider.aabb << std::endl;
+
+    return os;
+}
+
+#endif /* STLFILEPROVIDER_HPP_ */

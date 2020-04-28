@@ -1,0 +1,256 @@
+static char help[] = "main file launching the whole computation - kind of setup script";
+
+#include <petscdmda.h>
+#include <petsctime.h>
+#include <vector>
+#include <iostream>
+#include <algorithm>
+#include <iterator>
+
+// includes from LS library
+#include "Grid.hpp"
+#include "Interface.hpp"
+//#include "SphereProvider.hpp"
+//#include "Initializer.hpp" // initializer for the sphere
+
+
+#include "StlFileProvider.hpp"
+#include "Initializer_new.hpp"
+//#include "Initializer_bruteforce.hpp"
+
+
+#include "FmmWrapper.hpp"
+#include "BoundingBox.hpp"
+
+#undef __FUNCT__
+#define __FUNCT__ "main"
+int main(int argc,char **argv) {
+
+	PetscErrorCode ierr;
+
+	// setup the domain size
+	PetscReal      minX[3] = { -0.5, -0.5, -0.5};
+	PetscReal      maxX[3] = {  0.5,  0.5,  0.5};
+
+	PetscInt       M[3];         // number of nodes in each dimension
+	PetscInt       NP[3];        // number of processors in each direction
+//	PetscInt*      lx, ly, lz;   // number of nodes in each dimension
+
+	char           fname[120];
+	char           oname[120];
+	PetscBool      flg;
+    PetscLogDouble t0, t1, t2, t3, fmm_time, init_time, load_time;
+
+    // place the sphere in the {0,0,0}
+	std::vector<double> center;
+
+	center.push_back(0);
+	center.push_back(0);
+	center.push_back(0);
+
+	ierr = PetscInitialize(&argc, &argv, (char*)0, help); CHKERRQ(ierr);
+
+	PetscOptionsGetString(PETSC_NULL, "-f", fname, 120, &flg);
+	if (!flg) {
+		// no input filename
+		ierr = PetscFinalize();
+		return 1;
+	}
+
+	PetscOptionsGetString(PETSC_NULL, "-o", oname, 120, &flg);
+	if (!flg) {
+		// no output filename default will be used
+		strcpy(oname, "out_default.dat");
+	}
+
+	int rank;
+	MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
+
+	ierr = PetscGetTime(&t0);
+
+	// stuff used for loading and processing STL files
+	StlFileProvider* provider             = new StlFileProvider(fname);
+	BoundingBox<double> reg               = provider->getRegion();
+	BoundingBox<double> bb                = provider->getGridSize(0.5); // blow a grid a bit
+	double mindx                          = provider->getMinDX(0);
+
+//	PetscSynchronizedPrintf(PETSC_COMM_WORLD, "Bounding box for geometry is: X: %f -- %f, Y: %f -- %f, Z: %f -- %f\n", reg.minX[0],
+//			reg.maxX[0], reg.minX[1], reg.maxX[1], reg.minX[2], reg.maxX[2]);
+//	PetscSynchronizedFlush(PETSC_COMM_WORLD);
+
+	// set dx acordingly to the minimum size of the mesh
+//	M[0] = ceil( (bb.maxX[0] - bb.minX[0]) / mindx );
+//	M[1] = ceil( (bb.maxX[1] - bb.minX[1]) / mindx );
+//	M[2] = ceil( (bb.maxX[2] - bb.minX[2]) / mindx );
+
+	PetscOptionsGetInt(PETSC_NULL,"-m", &M[0], &flg);
+	if (flg) {
+		// dx in all directions is the same
+		double eps = 1E-5;
+		double tmpdx;
+		double dx = (bb.maxX[0] - bb.minX[0]) / (M[0] - 1);
+
+
+		M[1] = ( (bb.maxX[1] - bb.minX[1]) / dx ) + 1;
+		tmpdx = dx * (M[1] - 1);
+		if ( fabs( tmpdx - (bb.maxX[1] - bb.minX[1])) > eps ) {
+			double diff = fabs( tmpdx - (bb.maxX[1] - bb.minX[1]) );
+			bb.maxX[1] += dx - diff + eps;
+			M[1] = (bb.maxX[1] - bb.minX[1]) / dx + 1;
+		}
+//		PetscSynchronizedPrintf(PETSC_COMM_WORLD, "%f -- %f\n", dx, (bb.maxX[1] - bb.minX[1]) / (M[1] - 1));
+
+		M[2] = ((bb.maxX[2] - bb.minX[2]) / dx) + 1;
+		tmpdx = dx * (M[2] - 1);
+		if ( fabs( tmpdx - (bb.maxX[2] - bb.minX[2])) > eps ) {
+			double diff = fabs( tmpdx - (bb.maxX[2] - bb.minX[2]) );
+			bb.maxX[2] += dx - diff + eps;
+			M[2] = (bb.maxX[2] - bb.minX[2]) / dx + 1;
+		}
+//		PetscSynchronizedPrintf(PETSC_COMM_WORLD, "%f -- %f\n", dx, (bb.maxX[2] - bb.minX[2]) / (M[2] - 1));
+
+
+//		double dx = (maxX[0] - minX[0]) / (M[0] - 1);
+//
+//
+//		M[1] = ( (maxX[1] - minX[1]) / dx ) + 1;
+//		tmpdx = dx * (M[1] - 1);
+//		if ( fabs( tmpdx - (maxX[1] - minX[1])) > eps ) {
+//			double diff = fabs( tmpdx - (maxX[1] - minX[1]) );
+//			maxX[1] += dx - diff + eps;
+//			M[1] = (maxX[1] - minX[1]) / dx + 1;
+//		}
+//		//		PetscSynchronizedPrintf(PETSC_COMM_WORLD, "%f -- %f\n", dx, (bb.maxX[1] - bb.minX[1]) / (M[1] - 1));
+//
+//		M[2] = ((maxX[2] - minX[2]) / dx) + 1;
+//		tmpdx = dx * (M[2] - 1);
+//		if ( fabs( tmpdx - (maxX[2] - minX[2])) > eps ) {
+//			double diff = fabs( tmpdx - (maxX[2] - minX[2]) );
+//			maxX[2] += dx - diff + eps;
+//			M[2] = (maxX[2] - minX[2]) / dx + 1;
+//		}
+//		PetscSynchronizedPrintf(PETSC_COMM_WORLD, "%f -- %f\n", dx, (maxX[2] - minX[2]) / (M[2] - 1));
+
+
+	}
+
+//	if (rank == 0) {
+//		PetscSynchronizedPrintf(PETSC_COMM_WORLD, "[%d, %d, %d]\n", M[0], M[1], M[2]);
+//	}
+
+//	ierr = PetscFinalize();
+//	return 0;
+
+
+	// load the cell number in each dimension
+//	PetscOptionsGetInt(PETSC_NULL,"-M", &M[0], &flg);
+//	if ( flg ){
+//		if ( M[0] < 1 ) {
+//			std::cerr << "Error : dimension must be bigger than 1. But really put something reasonable" << std::endl;
+//		}
+//	} else {
+//		std::cerr << "Error : dimension not set" << std::endl;
+//	}
+//	PetscOptionsGetInt(PETSC_NULL,"-N", &M[1], &flg);
+//	if ( flg ) {
+//		if ( M[1] < 1 ) {
+//			std::cerr << "Error : dimension must be bigger than 1. But really put something reasonable" << std::endl;
+//		}
+//	} else {
+//		std::cerr << "Error : dimension not set" << std::endl;
+//	}
+//	PetscOptionsGetInt(PETSC_NULL,"-P", &M[2], &flg);
+//	if ( flg ) {
+//		if ( M[2] < 1 ) {
+//			std::cerr << "Error : dimension must be bigger than 1. But really put something reasonable" << std::endl;
+//		}
+//	} else {
+//		std::cerr << "Error : dimension not set" << std::endl;
+//	}
+
+
+//	PetscSynchronizedPrintf(PETSC_COMM_WORLD, "Rank %d, loaded mesh.\n", rank);
+//	PetscSynchronizedFlush(PETSC_COMM_WORLD);
+
+	// load number of processors in each dimension - if not set, than split equally (suuuuuure)
+//	PetscOptionsGetInt(PETSC_NULL,"-m", &NP[0], &flg);
+//	if ( flg ) {
+//		if ( NP[0] < 1 ) {
+//			std::cerr << "Error : Number of processors must be bigger than 1" << std::endl;
+//		}
+//	} else {
+//		NP[0] = -1;
+//	}
+//
+//	PetscOptionsGetInt(PETSC_NULL,"-n", &NP[1], &flg);
+//	if ( flg ) {
+//		if ( NP[1] < 1 ) {
+//			std::cerr << "Error : Number of processors must be bigger than 1" << std::endl;
+//		}
+//	} else {
+//		NP[1] = -1;
+//	}
+//	PetscOptionsGetInt(PETSC_NULL,"-p", &NP[2], &flg);
+//	if ( flg ) {
+//		if ( NP[2] < 1 ) {
+//			std::cerr << "Error : Number of processors must be bigger than 1" << std::endl;
+//		}
+//	} else {
+//		NP[2] = -1;
+//	}
+
+
+//	if ( NP[0] == NP[1] == NP[2] == -1 ) {
+//
+//		ierr = PetscFinalize();
+//		return 1;
+//
+//	}
+
+
+	ierr = PetscGetTime(&t1);
+
+	Grid<3>*        gr                    = new Grid<3>(minX, maxX, M, NP);
+	Interface<3>*   interface             = new Interface<3>(gr);
+
+//	SphereProvider* provider              = new SphereProvider(center, 0.2, (M[0] + M[1] + M[2]));
+	Initializer<StlFileProvider, 3>* init  = new Initializer<StlFileProvider, 3>(provider);
+
+
+	interface->initialize(init);
+
+	ierr = PetscGetTime(&t2);
+
+//	PetscSynchronizedPrintf(PETSC_COMM_WORLD, "Rank %d, Done init.\n", rank);
+//	PetscSynchronizedFlush(PETSC_COMM_WORLD);
+
+//	interface->saveForMatlab("out_init.dat");
+
+	double shift = gr->getMaxDist();
+
+//	PetscSynchronizedPrintf(PETSC_COMM_WORLD, "Shift :  %f\n", shift);
+
+	FmmWrapper::solveEikonalEquation<3>(interface, shift);
+
+	ierr = PetscGetTime(&t3);
+
+	fmm_time     = t3 - t2;
+	init_time    = t2 - t1;
+	load_time    = t1 - t0;
+
+	PetscSynchronizedPrintf(PETSC_COMM_WORLD, "Rank, FMM time, Init time, Load time : %5d, %f, %f %f\n", rank, fmm_time, init_time, load_time);
+	PetscSynchronizedFlush(PETSC_COMM_WORLD);
+
+//	interface->saveForParaView(oname);
+	interface->saveForMatlab(oname);
+//	interface->writeData("rail.txt");
+//	interface->saveToHDF5(oname);
+
+	delete init;
+	delete provider;
+	delete interface;
+	delete gr;
+
+	ierr = PetscFinalize();
+	return 0;
+}

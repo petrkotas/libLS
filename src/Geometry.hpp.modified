@@ -1,0 +1,328 @@
+#ifndef GEOMETRY_HPP_
+#define GEOMETRY_HPP_
+
+
+#include <iostream>
+#include <fstream>
+#include <list>
+#include <vector>
+#include <limits>
+#include "BoundingBox.hpp"
+//#include "TriangleElement.hpp"
+
+#include <CGAL/Simple_cartesian.h>
+#include <CGAL/AABB_tree.h>
+#include <CGAL/AABB_traits.h>
+#include <CGAL/AABB_triangle_primitive.h>
+#include <CGAL/squared_distance_3.h>
+
+typedef CGAL::Simple_cartesian<double> K;
+typedef K::Triangle_3 Triangle;
+typedef K::Point_3 Point;
+typedef K::FT FT;
+
+typedef std::list<Triangle>::iterator Iterator;
+typedef CGAL::AABB_triangle_primitive<K, Iterator> Primitive;
+typedef CGAL::AABB_traits<K, Primitive> AABB_triangle_traits;
+typedef CGAL::AABB_tree<AABB_triangle_traits> Tree;
+
+typedef CGAL::AABB_traits<K, Primitive>::Point_and_primitive_id PP;
+
+class Geometry {
+private:
+
+	/// The dimension of the mesh 
+	int dim;
+
+	/// The number of elements
+	long int numberOfElements;
+
+	std::list<Triangle> elements;
+
+	friend std::ostream& operator<<(std::ostream& os, const Geometry& geom);
+
+	Tree *tree;
+
+public:
+
+	BoundingBox<double, 3> aabb;
+
+	Geometry() {
+		numberOfElements = 0;
+		dim = 3;
+		tree = NULL;
+	}
+
+	Geometry(const Geometry& geom): dim(geom.dim), numberOfElements(geom.numberOfElements), aabb(geom.aabb) {
+
+		elements      = geom.elements;
+
+	}
+
+	~Geometry() {
+		if (tree != NULL)
+			delete tree;
+	}
+
+
+	void appendElement(const Triangle& element);
+
+
+	void findNearest(const Eigen::Vector3d& point);
+
+	void initializeSpatialSearch();
+
+
+	double getMaxX(int i);
+	double getMinX(int i);
+
+
+	double computeDistance(Eigen::Vector3d& point);
+
+	// Factory method to load geometry from STL file
+	static Geometry fromFile(const char* iname);
+
+};
+
+
+
+void Geometry::appendElement(const Triangle& element) {
+
+	elements.push_back(element);            // store element in data array
+	numberOfElements++;
+
+	// expand the bounding box - will be used as root node
+//	aabb.expand( element->getBoundingBox() );
+
+}
+
+
+void Geometry::initializeSpatialSearch() {
+
+	tree = new Tree(elements.begin(), elements.end());
+
+}
+
+
+void Geometry::findNearest(const Eigen::Vector3d& point) {
+
+	// change the type of the point to suit the need of the kd_tree
+
+	// number of nearest
+	int K      = 100;
+	double eps = 0.0f;
+
+	std::list<long int> neighbours;
+
+
+
+
+//	return ret;
+
+}
+
+inline double Geometry::getMaxX(int i) {
+	return aabb.maxX(i);
+}
+
+inline double Geometry::getMinX(int i) {
+	return aabb.minX(i);
+}
+
+
+
+
+
+double Geometry::computeDistance(Eigen::Vector3d& p) {
+	// used to compute minimal distance to surface
+
+	Point p_query(p[0], p[1], p[2]);
+	PP point_and_primitive = tree->closest_point_and_primitive( p_query );
+
+	Triangle tri = *point_and_primitive.second;
+
+	auto sg = CGAL::orientation(tri[0], tri[1], tri[2], p_query);
+
+	auto dist = std::sqrt( CGAL::squared_distance(point_and_primitive.first, p_query));
+
+	if ( sg == CGAL::NEGATIVE ) {
+		dist = -1 * dist;
+	}
+
+//	double eps           =  1E-05;
+//	double perpDistance  = -std::numeric_limits<double>::max();
+//
+//	SignedDistance<double> distance;
+//	distance.dist = std::numeric_limits<double>::max();
+//
+////	std::vector<std::shared_ptr<TriangleElement<double>>> nearest = findNearest(p);
+//
+////	std::cout << "Elements to loop: " << double(nearest.size()) / double(elements.size()) << std::endl;
+//
+//	for (auto element : element) {
+//
+//		SignedDistance<double> currentDistance = TriangleElement<double>::computeDistance(*element, p);
+//		double             currentPerpDistance = TriangleElement<double>::computePerpendicularDistance(*element, p);
+//
+//		if ( std::abs( currentDistance.dist - distance.dist ) < eps  ) {
+//			if ( perpDistance <= currentPerpDistance ) {
+//				distance     = currentDistance;
+//				perpDistance = currentPerpDistance;
+//			}
+//		} else if ( currentDistance.dist < distance.dist ) {
+//			distance     = currentDistance;
+//			perpDistance = currentPerpDistance;
+//		}
+//
+//	}
+
+	return dist;
+
+}
+
+
+
+
+// factory method to load data from stl file
+Geometry Geometry::fromFile(const char* iname) {
+
+	Geometry loadedGeometry;
+
+	std::ifstream iFile;
+	char          line[120];
+	char          name[20];
+
+	iFile.open(iname);
+
+	// read first line and the name of the body from it
+	if (!iFile.is_open()) {
+		// file not existent or some other stuff
+		// throw error? :)
+		std::cerr << "F U C K" << std::endl;
+	}
+
+	// read first line and the name of the body from it
+	iFile.getline(line, 120);
+
+	sscanf(line, "%*s %s", name);
+
+	long int nElements     = 0;
+	long int nNormals      = 0;
+	long int nVertices     = 0;
+	int      nFacet        = 0;
+	int      nOuter        = 0;
+	int      vertexCounter = 0;
+
+
+	std::vector<Point> vertices;
+	Point vertex, normal;
+	double a,b,c;
+
+
+	// go through the rest of the lines and load the data
+	while ( iFile.getline(line, 120) ) {
+
+		char flag[120];
+
+		sscanf(line, "%s", flag);
+
+		if ( strstr(line, "facet normal") ) {
+			// load the normal, we do not use them, but lets read them
+			sscanf(line, "%*s %*s %lf %lf %lf", &a, &b, &c);
+
+			nFacet++;
+			nElements++;
+			nNormals++;
+		}
+		if ( strstr(flag, "outer") ) {
+			nOuter++;
+			vertexCounter = 0;
+		}
+		if ( strstr(flag, "vertex")  != 0 ) {
+
+			sscanf(line, "%*s %lf %lf %lf", &a, &b, &c);
+
+			vertices.push_back( Point(a,b,c) );
+
+			nVertices++;
+			vertexCounter++;
+		}
+		if ( strstr(flag, "endloop")  != 0 ) {
+			nOuter--;
+		}
+		if ( strstr(line, "endfacet")) {
+
+			loadedGeometry.appendElement( Triangle(vertices[0], vertices[1], vertices[2]) );
+			
+			nFacet--;
+			vertices.clear();
+		}
+
+		// read next line
+		line[0] = 'X';
+
+	}
+
+	if ( (nFacet != 0) && (nOuter != 0) && ((nVertices/3) != nElements) ) {
+		// file was loaded incorectlly, some shit happened
+		std::cout << "Error" << std::endl;
+	}
+
+	
+
+
+	iFile.close();
+	// done loading elements
+
+	loadedGeometry.aabb.grow(1.2);
+
+	// initialize search algorithms
+	loadedGeometry.initializeSpatialSearch();
+
+
+	return loadedGeometry;
+
+};
+
+
+
+
+//==========================================
+// ostream operators used for debug printing
+//==========================================
+
+
+std::ostream& operator<<(std::ostream& os, const Geometry& geom) {
+	
+	os << "Geometry : " << std::endl;
+	os << "Bounding box : " << std::endl;
+	for (int i = 0; i < geom.dim; i++) {
+
+		os << "| " << geom.aabb.center[i] - geom.aabb.extent[i] << " - " << geom.aabb.center[i] + geom.aabb.extent[i] << " |" << std::endl;
+
+	}
+
+	os << std::endl;
+l
+	os << "Number of elements : " << geom.numberOfElements << std::endl;
+
+    return os;
+}
+
+
+inline std::pair<double,double> compute_distance(const Triangle& tri, const Point& p) {
+
+	double sd  = 0.0;
+	double ort = 0.0;
+
+
+
+	return std::make_pair(sd, ort);
+
+}
+
+
+
+
+#endif // GEOMETRY_HPP_
+
